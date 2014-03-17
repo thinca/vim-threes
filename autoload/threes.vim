@@ -205,7 +205,6 @@ function! s:Threes.render()
 
   let content = []
 
-  " TODO render NEXT
   let content += [s:centerize('NEXT', board_width)]
   let content += [s:centerize(tile_horizontal_line . cross, board_width)]
   let next_tile = vertical . s:centerize(self.next_tile_str(), tile_width) . vertical
