@@ -1,0 +1,117 @@
+*threes.txt*	Play Threes! in Vim!
+
+Version: 1.0
+Author : thinca <thinca+vim@gmail.com>
+License: zlib License
+
+==============================================================================
+CONTENTS					*threes-contents*
+
+INTRODUCTION			|threes-introduction|
+INTERFACE			|threes-interface|
+  COMMANDS			  |threes-commands|
+  FUNCTIONS			  |threes-functions|
+  KEY MAPPINGS			  |threes-key-mappings|
+CUSTOMIZING			|threes-customizing|
+CHANGELOG			|threes-changelog|
+
+
+
+==============================================================================
+INTRODUCTION					*threes-introduction*
+
+*threes.vim* is a Vim plugin to play Threes! game.
+
+http://threesgame.com/
+
+Threes! is a game for iOS and Android.
+Thanks for the very amusing game!
+
+I referred to the following web site for implements of this plugin.  Thanks.
+It was mainly useful for implementation of NEXT.
+http://threesjs.com/
+
+In publishing this game, I have not got permission from the original authors.
+When cautions are received from them, this plugin stops public presentation
+immediately.
+
+
+Requirements:
+- Vim 7.4 or later
+
+Latest version:
+https://github.com/thinca/vim-threes
+
+
+
+==============================================================================
+INTERFACE					*threes-interface*
+
+------------------------------------------------------------------------------
+COMMANDS					*threes-commands*
+
+:ThreesStart					*:ThreesStart*
+	Start a new Threes! game.
+
+------------------------------------------------------------------------------
+FUNCTIONS					*threes-functions*
+
+threes#start()					*threes#start()*
+	A function version of |:ThreesStart|.
+
+
+------------------------------------------------------------------------------
+KEY MAPPINGS					*threes-key-mappings*
+
+All keymappings can use only at threes buffer.
+
+<Plug>(threes-move-left)			*<Plug>(threes-move-left)*
+	Move tiles to left.
+
+<Plug>(threes-move-down)			*<Plug>(threes-move-down)*
+	Move tiles to down.
+
+<Plug>(threes-move-up)				*<Plug>(threes-move-up)*
+	Move tiles to up.
+
+<Plug>(threes-move-right)			*<Plug>(threes-move-right)*
+	Move tiles to right.
+
+<Plug>(threes-redraw)				*<Plug>(threes-redraw)*
+	Redraws the screen.
+
+
+{lhs}			{rhs}
+--------		-----------------------------
+h			<Plug>(threes-move-left)
+j			<Plug>(threes-move-down)
+k			<Plug>(threes-move-up)
+l			<Plug>(threes-move-right)
+<C-l>			<Plug>(threes-redraw)
+
+
+==============================================================================
+CUSTOMIZING					*threes-customizing*
+
+Does not exist yet.
+
+
+
+==============================================================================
+TODO						*threes-todo*
+
+- Coloring.
+- Simple animation.
+- More customed games.
+- Save records.
+
+
+==============================================================================
+CHANGELOG					*threes-changelog*
+
+1.0	2014-03-17
+	- Initial version.
+
+
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
