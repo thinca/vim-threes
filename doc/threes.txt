@@ -77,6 +77,15 @@ All keymappings can use only at threes buffer.
 <Plug>(threes-move-right)			*<Plug>(threes-move-right)*
 	Move tiles to right.
 
+<Plug>(threes-tweet)				*<Plug>(threes-tweet)*
+	Tweets the result to Twitter.
+
+	Either of following is required to use this feature.
+	- tweetvim (https://github.com/basyura/TweetVim)
+	- OpenBrowser (https://github.com/tyru/open-browser.vim)
+
+	This only works on game over.
+
 <Plug>(threes-redraw)				*<Plug>(threes-redraw)*
 	Redraws the screen.
 
@@ -87,6 +96,7 @@ h			<Plug>(threes-move-left)
 j			<Plug>(threes-move-down)
 k			<Plug>(threes-move-up)
 l			<Plug>(threes-move-right)
+t			<Plug>(threes-tweet)
 <C-l>			<Plug>(threes-redraw)
 
 

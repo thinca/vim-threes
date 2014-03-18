@@ -12,6 +12,8 @@ call s:Random.srand()
 let s:List = s:V.import('Data.List')
 
 
+let s:tweet_template = 'I just scored %s in threes.vim! https://github.com/thinca/vim-threes #threesvim'
+
 let s:default_setting = {
 \   'width': 4,
 \   'height': 4,
@@ -275,6 +277,12 @@ function! s:Threes.total_score()
   return s:sum(map(self.tiles(), 'self.score(v:val)'))
 endfunction
 
+function! s:Threes.tweet()
+  if self.is_gameover()
+    call s:tweet(self.total_score())
+  endif
+endfunction
+
 
 function! threes#new(...)
   let threes = deepcopy(s:Threes)
@@ -312,12 +320,27 @@ function! s:define_keymappings()
   \       :<C-u>call b:threes.next(1, 0).render()<CR>
   noremap <buffer> <silent> <Plug>(threes-redraw)
   \       :<C-u>call b:threes.render()<CR>
+  noremap <buffer> <silent> <Plug>(threes-tweet)
+  \       :<C-u>call b:threes.tweet()<CR>
 
   map <buffer> h <Plug>(threes-move-left)
   map <buffer> j <Plug>(threes-move-down)
   map <buffer> k <Plug>(threes-move-up)
   map <buffer> l <Plug>(threes-move-right)
   map <buffer> <C-l> <Plug>(threes-redraw)
+  map <buffer> t <Plug>(threes-tweet)
+endfunction
+
+function! s:tweet(score)
+  let score_str = substitute(a:score, '\v\d\zs\ze(\d{3})+$', ',', 'g')
+  let tweet_text = printf(s:tweet_template, score_str)
+  if get(g:, 'loaded_tweetvim', 0)
+    call tweetvim#say#open(tweet_text)
+    stopinsert
+  elseif get(g:, 'loaded_openbrowser', 0)
+    let url = 'https://twitter.com/intent/tweet?text=%s'
+    call openbrowser#open(printf(url, tweet_text))
+  endif
 endfunction
 
 " --- Utilities
