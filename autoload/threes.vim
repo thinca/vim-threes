@@ -296,6 +296,8 @@ endfunction
 
 function! s:init_buffer()
   setlocal readonly nomodifiable buftype=nofile
+  setlocal nonumber nowrap nolist
+  setlocal nocursorline nocursorcolumn colorcolumn=
   setlocal filetype=threes
 endfunction
 
