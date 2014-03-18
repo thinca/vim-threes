@@ -93,7 +93,8 @@ function! s:Threes.next_tile_str()
 endfunction
 
 function! s:Threes.tile_color_char(tile)
-  return [' ', '.', ','][index(self._setting.origin_numbers, a:tile) + 1]
+  let colors = ['_', ' ', '.', ',']
+  return colors[index([0] + self._setting.origin_numbers, a:tile) + 1]
 endfunction
 
 function! s:Threes.new_game()
@@ -203,8 +204,6 @@ function! s:Threes.render()
 
   let tile_horizontal_line = cross . repeat(horizontal, tile_width)
   let horizontal_line = repeat(tile_horizontal_line, self.width()) . cross
-  let tile_vertical_line = vertical . repeat(' ', tile_width)
-  let vertical_line = repeat(tile_vertical_line, self.width()) . vertical
   let board_width = strwidth(horizontal_line)
 
   let content = []
