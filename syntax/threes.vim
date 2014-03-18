@@ -11,15 +11,15 @@ if !exists('b:threes')
   finish
 endif
 
-syntax match threesOriginTile1 /\.\+\d*\.\+/ contains=threesOriginNumber1
-syntax match threesOriginTile2 /,\+\d*,\+/ contains=threesOriginNumber2
-syntax match threesNormalTile /_\+\(*\?\)\d*\1_\+/ contains=threesNormalNumber,threesHighestTile
-syntax match threesOriginNumber1 /\d\+/ contained
-syntax match threesOriginNumber2 /\d\+/ contained
-syntax match threesNormalNumber /\d\+/ contained
+syntax match threesOriginTile1 /\.\+[[:digit:]+]*\.\+/ contains=threesOriginNumber1
+syntax match threesOriginTile2 /,\+[[:digit:]+]*,\+/ contains=threesOriginNumber2
+syntax match threesNormalTile /_\+\(*\?\)[[:digit:]+]*\1_\+/ contains=threesNormalNumber,threesHighestTile
+syntax match threesOriginNumber1 /[[:digit:]+]\+/ contained
+syntax match threesOriginNumber2 /[[:digit:]+]\+/ contained
+syntax match threesNormalNumber /[[:digit:]+]\+/ contained
 
-syntax match threesHighestTile /\*\d\+\*/ contains=threesHighestNumber,threesHighestMark
-syntax match threesHighestNumber /\d\+/ contained
+syntax match threesHighestTile /\*[[:digit:]+]\+\*/ contains=threesHighestNumber,threesHighestMark
+syntax match threesHighestNumber /[[:digit:]+]\+/ contained
 syntax match threesHighestMark /\*/ contained
 
 highlight default threesOriginTile1   ctermfg=Blue  ctermbg=Blue  guifg=#66CCFF guibg=#66CCFF
