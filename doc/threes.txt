@@ -1,6 +1,6 @@
 *threes.txt*	Play Threes! in Vim!
 
-Version: 1.0
+Version: 1.1
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -107,6 +107,9 @@ TODO						*threes-todo*
 
 ==============================================================================
 CHANGELOG					*threes-changelog*
+
+1.1	2014-03-18
+	- Add coloring support.
 
 1.0	2014-03-17
 	- Initial version.
