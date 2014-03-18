@@ -100,7 +100,6 @@ Does not exist yet.
 ==============================================================================
 TODO						*threes-todo*
 
-- Coloring.
 - Simple animation.
 - More customed games.
 - Save records.

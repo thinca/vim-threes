@@ -58,7 +58,7 @@ function! s:Threes.tiles()
   return s:List.flatten(self._tiles)
 endfunction
 
-function! s:Threes.max_tile()
+function! s:Threes.highest_tile()
   return max(self.tiles())
 endfunction
 
@@ -90,6 +90,10 @@ endfunction
 function! s:Threes.next_tile_str()
   let next = self._next_tile
   return self.base_number() < next ? '+' : string(next)
+endfunction
+
+function! s:Threes.tile_color_char(tile)
+  return [' ', '.', ','][index(self._setting.origin_numbers, a:tile) + 1]
 endfunction
 
 function! s:Threes.new_game()
@@ -175,7 +179,7 @@ endfunction
 
 function! s:Threes.random_tile()
   " large number
-  let max_tile_radix = self.exp(self.max_tile())
+  let max_tile_radix = self.exp(self.highest_tile())
   let exp = max_tile_radix - self._setting.large_num_limit
   if 0 < exp && s:random(self._setting.large_num_odds) == 0
     let base = self.base_number()
@@ -205,23 +209,39 @@ function! s:Threes.render()
 
   let content = []
 
+  let color = self.tile_color_char(self._next_tile)
   let content += [s:centerize('NEXT', board_width)]
   let content += [s:centerize(tile_horizontal_line . cross, board_width)]
-  let next_tile = vertical . s:centerize(self.next_tile_str(), tile_width) . vertical
-  let content += [s:centerize(next_tile, board_width)]
+  let next_tile = s:centerize(self.next_tile_str(), tile_width, color)
+  let content += [s:centerize(vertical . next_tile . vertical, board_width)]
   let content += [s:centerize(tile_horizontal_line . cross, board_width)]
+
+  let top_blank = (tile_height - 1) / 2
+  let bottom_blank = tile_height - 1 - top_blank
+
+  let highest = self.highest_tile()
+  if highest == self.base_number()
+    let highest = -1
+  endif
 
   for line in self._tiles
     let content += [horizontal_line]
-    let vline = (tile_height - 1) / 2
-    let content += repeat([vertical_line], vline)
-    let num_line = ''
+    let line_tiles = repeat([vertical], tile_height)
     for tile in line
-      let num_line .= vertical
-      let num_line .= s:centerize(tile == 0 ? '' : tile, tile_width)
+      let color = self.tile_color_char(tile)
+      for n in range(tile_height)
+        if n == tile_height / 2
+          let tile_str = tile == 0 ? ''
+          \            : tile == highest ? '*' . tile . '*'
+          \            : tile
+          let line_tiles[n] .= s:centerize(tile_str, tile_width, color)
+        else
+          let line_tiles[n] .= repeat(color, tile_width)
+        endif
+        let line_tiles[n] .= vertical
+      endfor
     endfor
-    let content += [num_line . vertical]
-    let content += repeat([vertical_line], tile_height - 1 - vline)
+    let content += line_tiles
   endfor
   let content += [horizontal_line]
 
@@ -328,12 +348,13 @@ function! s:sample(list)
   return a:list[s:random(len(a:list))]
 endfunction
 
-function! s:centerize(str, width)
+function! s:centerize(str, width, ...)
+  let char = a:0 ? a:1 : ' '
   let w = strwidth(a:str)
   let padding = a:width - w
   let left = padding / 2
   let right = padding - left
-  return repeat(' ', left) . a:str . repeat(' ', right)
+  return repeat(char, left) . a:str . repeat(char, right)
 endfunction
 
 
