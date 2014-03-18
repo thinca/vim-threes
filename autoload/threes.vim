@@ -255,7 +255,7 @@ function! s:Threes.render()
   silent put =content
   silent 1 delete _
   setlocal nomodifiable readonly
-  call cursor(1, 0)
+  call cursor(1, 1)
   redraw
 endfunction
 
