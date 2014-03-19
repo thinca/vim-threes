@@ -210,6 +210,15 @@ function! s:Threes.render()
 
   let content = []
 
+  " Render gameover message
+  let gameover = self.is_gameover()
+  if gameover
+    let content += [s:centerize('Out of moves!', board_width), '']
+  else
+    let content += ['', '']
+  endif
+
+  " Render next
   let color = self.tile_color_char(self._next_tile)
   let content += [s:centerize('NEXT', board_width)]
   let content += [s:centerize(tile_horizontal_line . cross, board_width)]
@@ -220,6 +229,7 @@ function! s:Threes.render()
   let top_blank = (tile_height - 1) / 2
   let bottom_blank = tile_height - 1 - top_blank
 
+  " Render board
   let highest = self.highest_tile()
   if highest == self.base_number()
     let highest = -1
@@ -246,7 +256,8 @@ function! s:Threes.render()
   endfor
   let content += [horizontal_line]
 
-  if self.is_gameover()
+  " Render score
+  if gameover
     let content += ['', s:centerize('score: ' . self.total_score(), board_width)]
   endif
 
