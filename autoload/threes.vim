@@ -27,13 +27,17 @@ let s:Threes = {}
 
 function! s:Threes.init(setting)
   let self._setting = deepcopy(a:setting)
-  let self._setting.base_number = s:sum(self._setting.origin_numbers)
-  let self._tiles = map(range(self.width()), 'repeat([0], self.height())')
 
+  let self._base_number = s:sum(self._setting.origin_numbers)
   let origin_num = (self.width() + self.height()) / 2
-  let self._origin_deck = repeat(self._setting.origin_numbers, origin_num) +
-  \                       repeat([self.base_number()], origin_num)
-  let self._deck = []
+  let self._origin_deck =
+  \        repeat(self._setting.origin_numbers, origin_num) +
+  \        repeat([self.base_number()], origin_num)
+
+  let self._state = {}
+  let self._state.tiles =
+  \        map(range(self.width()), 'repeat([0], self.height())')
+  let self._state.deck = []
 endfunction
 
 function! s:Threes.width()
@@ -45,19 +49,19 @@ function! s:Threes.height()
 endfunction
 
 function! s:Threes.base_number()
-  return self._setting.base_number
+  return self._base_number
 endfunction
 
 function! s:Threes.get_tile(x, y)
-  return self._tiles[a:y][a:x]
+  return self._state.tiles[a:y][a:x]
 endfunction
 
 function! s:Threes.set_tile(x, y, tile)
-  let self._tiles[a:y][a:x] = a:tile
+  let self._state.tiles[a:y][a:x] = a:tile
 endfunction
 
 function! s:Threes.tiles()
-  return s:List.flatten(self._tiles)
+  return s:List.flatten(self._state.tiles)
 endfunction
 
 function! s:Threes.highest_tile()
@@ -90,7 +94,7 @@ function! s:Threes.is_gameover()
 endfunction
 
 function! s:Threes.next_tile_str()
-  let next = self._next_tile
+  let next = self._state.next_tile
   return self.base_number() < next ? '+' : string(next)
 endfunction
 
@@ -101,13 +105,14 @@ endfunction
 
 function! s:Threes.new_game()
   let tile_count = self.width() * self.height()
-  let init_tiles = s:shuffle(range(tile_count))[: self._setting.init_count - 1]
+  let random_tiles = s:shuffle(range(tile_count))
+  let init_tiles = random_tiles[: self._setting.init_count - 1]
   for pos in init_tiles
     let x = pos % self.width()
     let y = pos / self.height()
     call self.set_tile(x, y, self.random_tile())
   endfor
-  let self._next_tile = self.random_tile()
+  let self._state.next_tile = self.random_tile()
 endfunction
 
 function! s:Threes.start()
@@ -116,7 +121,7 @@ function! s:Threes.start()
 endfunction
 
 function! s:Threes.move(dx, dy)
-  let tiles = deepcopy(self._tiles)
+  let tiles = deepcopy(self._state.tiles)
   let moved = []
   let xrange = range(self.width())
   let yrange = range(self.height())
@@ -167,14 +172,14 @@ endfunction
 function! s:Threes.next(dx, dy)
   let result = self.move(a:dx, a:dy)
   if !empty(result.moved)
-    let self._tiles = result.tiles
+    let self._state.tiles = result.tiles
     let positions = self.next_tile_positions(a:dx, a:dy, result.moved)
     let [next_x, next_y] = s:sample(positions)
-    call self.set_tile(next_x, next_y, self._next_tile)
+    call self.set_tile(next_x, next_y, self._state.next_tile)
 
     if self.is_gameover()
     else
-      let self._next_tile = self.random_tile()
+      let self._state.next_tile = self.random_tile()
     endif
   endif
   return self
@@ -191,10 +196,10 @@ function! s:Threes.random_tile()
   endif
 
   " from deck
-  if empty(self._deck)
-    let self._deck = s:shuffle(copy(self._origin_deck))
+  if empty(self._state.deck)
+    let self._state.deck = s:shuffle(copy(self._origin_deck))
   endif
-  return remove(self._deck, 0)
+  return remove(self._state.deck, 0)
 endfunction
 
 function! s:Threes.render()
@@ -219,7 +224,7 @@ function! s:Threes.render()
   endif
 
   " Render next
-  let color = self.tile_color_char(self._next_tile)
+  let color = self.tile_color_char(self._state.next_tile)
   let content += [s:centerize('NEXT', board_width)]
   let content += [s:centerize(tile_horizontal_line . cross, board_width)]
   let next_tile = s:centerize(self.next_tile_str(), tile_width, color)
@@ -235,7 +240,7 @@ function! s:Threes.render()
     let highest = -1
   endif
 
-  for line in self._tiles
+  for line in self._state.tiles
     let content += [horizontal_line]
     let line_tiles = repeat([vertical], tile_height)
     for tile in line
@@ -258,7 +263,8 @@ function! s:Threes.render()
 
   " Render score
   if gameover
-    let content += ['', s:centerize('score: ' . self.total_score(), board_width)]
+    let score_line = s:centerize('score: ' . self.total_score(), board_width)
+    let content += ['', score_line]
   endif
 
   call map(content, 'substitute(v:val, "\\s\\+$", "", "")')
