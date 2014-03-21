@@ -33,6 +33,7 @@ function! s:Threes.init(setting)
   let self._origin_deck =
   \        repeat(self._setting.origin_numbers, origin_num) +
   \        repeat([self.base_number()], origin_num)
+  let self._renderer = s:Renderer_new(self)
 
   let self._state = {}
   let self._state.tiles =
@@ -64,6 +65,10 @@ function! s:Threes.tiles()
   return s:List.flatten(self._state.tiles)
 endfunction
 
+function! s:Threes.next_tile()
+  return self._state.next_tile
+endfunction
+
 function! s:Threes.highest_tile()
   return max(self.tiles())
 endfunction
@@ -91,16 +96,6 @@ function! s:Threes.is_gameover()
     endif
   endfor
   return 1
-endfunction
-
-function! s:Threes.next_tile_str()
-  let next = self._state.next_tile
-  return self.base_number() < next ? '+' : string(next)
-endfunction
-
-function! s:Threes.tile_color_char(tile)
-  let colors = ['_', ' ', '.', ',']
-  return colors[index([0] + self._setting.origin_numbers, a:tile) + 1]
 endfunction
 
 function! s:Threes.new_game()
@@ -175,7 +170,7 @@ function! s:Threes.next(dx, dy)
     let self._state.tiles = result.tiles
     let positions = self.next_tile_positions(a:dx, a:dy, result.moved)
     let [next_x, next_y] = s:sample(positions)
-    call self.set_tile(next_x, next_y, self._state.next_tile)
+    call self.set_tile(next_x, next_y, self.next_tile())
 
     if self.is_gameover()
     else
@@ -203,71 +198,7 @@ function! s:Threes.random_tile()
 endfunction
 
 function! s:Threes.render()
-  let tile_width = 6
-  let tile_height = 3
-  let horizontal = '-'
-  let vertical = '|'
-  let cross = '+'
-
-  let tile_horizontal_line = cross . repeat(horizontal, tile_width)
-  let horizontal_line = repeat(tile_horizontal_line, self.width()) . cross
-  let board_width = strwidth(horizontal_line)
-
-  let content = []
-
-  " Render gameover message
-  let gameover = self.is_gameover()
-  if gameover
-    let content += [s:centerize('Out of moves!', board_width), '']
-  else
-    let content += ['', '']
-  endif
-
-  " Render next
-  let color = self.tile_color_char(self._state.next_tile)
-  let content += [s:centerize('NEXT', board_width)]
-  let content += [s:centerize(tile_horizontal_line . cross, board_width)]
-  let next_tile = s:centerize(self.next_tile_str(), tile_width, color)
-  let content += [s:centerize(vertical . next_tile . vertical, board_width)]
-  let content += [s:centerize(tile_horizontal_line . cross, board_width)]
-
-  let top_blank = (tile_height - 1) / 2
-  let bottom_blank = tile_height - 1 - top_blank
-
-  " Render board
-  let highest = self.highest_tile()
-  if highest == self.base_number()
-    let highest = -1
-  endif
-
-  for line in self._state.tiles
-    let content += [horizontal_line]
-    let line_tiles = repeat([vertical], tile_height)
-    for tile in line
-      let color = self.tile_color_char(tile)
-      for n in range(tile_height)
-        if n == tile_height / 2
-          let tile_str = tile == 0 ? ''
-          \            : tile == highest ? '*' . tile . '*'
-          \            : tile
-          let line_tiles[n] .= s:centerize(tile_str, tile_width, color)
-        else
-          let line_tiles[n] .= repeat(color, tile_width)
-        endif
-        let line_tiles[n] .= vertical
-      endfor
-    endfor
-    let content += line_tiles
-  endfor
-  let content += [horizontal_line]
-
-  " Render score
-  if gameover
-    let score_line = s:centerize('score: ' . self.total_score(), board_width)
-    let content += ['', score_line]
-  endif
-
-  call map(content, 'substitute(v:val, "\\s\\+$", "", "")')
+  let content = self._renderer.render_game()
 
   setlocal modifiable noreadonly
   silent % delete _
@@ -300,6 +231,260 @@ function! s:Threes.tweet()
   endif
 endfunction
 
+
+let s:Renderer = {}
+
+function! s:Renderer_new(...)
+  let renderer = deepcopy(s:Renderer)
+  call call(renderer.init, a:000, renderer)
+  return renderer
+endfunction
+
+function! s:Renderer.init(game)
+  let self._game = a:game
+  let self._tile_width = 6
+  let self._tile_height = 3
+  let self._tile_images = [{}, {}]
+  let self._chars = {}
+  let self._chars.horizontal = '-'
+  let self._chars.vertical = '|'
+  let self._chars.cross = '+'
+
+  let vwidth = strwidth(self._chars.vertical)
+  let self._canvas_width =
+  \   (self._tile_width + vwidth) * a:game.width() + vwidth
+  let self._canvas = s:Canvas_new(self._canvas_width, 0)
+  let self._frame = self.make_frame(a:game.width(), a:game.height())
+endfunction
+
+function! s:Renderer.render_game()
+  let canvas = self._canvas
+  let game = self._game
+  call canvas.resize(-1, 0)
+  call canvas.reset_origin()
+
+  " Render gameover message
+  let gameover = game.is_gameover()
+  if gameover
+    call canvas.draw_center('Out of moves!', 0)
+  endif
+
+  " Render next
+  call canvas.set_origin(0, 2)
+  call self.render_next(canvas)
+
+  " Render board
+  call canvas.set_origin(0, canvas.height())
+  call self.render_board(canvas)
+  call canvas.reset_origin()
+
+  " Render score
+  if gameover
+    let score_line = 'score: ' . game.total_score()
+    call canvas.draw_center(score_line, canvas.height() + 1)
+  endif
+  return map(copy(canvas._field), 'substitute(v:val, "\\s\\+$", "", "")')
+endfunction
+
+function! s:Renderer.render_next(canvas)
+  let tile_width = self._tile_width
+  let vertical = self._chars.vertical
+  let color = self.tile_color_char(self._game.next_tile())
+  let next_tile = s:centerize(self.next_tile_str(), tile_width, color)
+  let line = self.make_horizontal(tile_width)
+  call a:canvas.draw_center('NEXT', 0)
+  call a:canvas.draw_center(line, 1)
+  call a:canvas.draw_center(vertical . next_tile . vertical, 2)
+  call a:canvas.draw_center(line, 3)
+endfunction
+
+function! s:Renderer.render_board(canvas)
+  let game = self._game
+  call a:canvas.draw(self._frame, 0, 0)
+  let highest = game.highest_tile()
+  if highest <= game.base_number()
+    let highest = -1
+  endif
+
+  for y in range(game.height())
+    let cy = y * (self._tile_height + 1) + 1
+    let line = game._state.tiles[y]
+    for x in range(game.width())
+      let cx = x * (self._tile_width + 1) + 1
+      let tile = line[x]
+      call a:canvas.draw(self.get_tile(tile, tile == highest), cx, cy)
+    endfor
+  endfor
+endfunction
+
+function! s:Renderer.make_frame(x, y)
+  let tile_width = self._tile_width
+  let tile_height = self._tile_height
+  let c = self._chars
+
+  let tile_h = c.cross . repeat(c.horizontal, tile_width)
+  let h = repeat(tile_h, self._game.width()) . c.cross
+  let tile_v = c.vertical . repeat(' ', tile_width)
+  let v = repeat(tile_v, self._game.width()) . c.vertical
+  let tile_line = [h] + repeat([v], tile_height)
+  let board = repeat(tile_line, self._game.height()) + [h]
+  return board
+endfunction
+
+function! s:Renderer.make_horizontal(width)
+  let c = self._chars
+  return c.cross . repeat(c.horizontal, a:width) . c.cross
+endfunction
+
+function! s:Renderer.get_tile(tile, is_highest)
+  let images = self._tile_images[!!a:is_highest]
+  if !has_key(images, a:tile)
+    let images[a:tile] = self.make_tile(a:tile, a:is_highest)
+  endif
+  return images[a:tile]
+endfunction
+
+function! s:Renderer.make_tile(tile, is_highest)
+  let tile_width = self._tile_width
+  let tile_height = self._tile_height
+
+  let color = self.tile_color_char(a:tile)
+  let tile_str = a:tile == 0 ? ''
+  \            : a:is_highest ? '*' . a:tile . '*'
+  \            : a:tile
+
+  let line_tiles = []
+  for n in range(tile_height)
+    if n == tile_height / 2
+      let line_tiles += [s:centerize(tile_str, tile_width, color)]
+    else
+      let line_tiles += [repeat(color, tile_width)]
+    endif
+  endfor
+  return line_tiles
+endfunction
+
+function! s:Renderer.next_tile_str()
+  let next = self._game.next_tile()
+  return self._game.base_number() < next ? '+' : string(next)
+endfunction
+
+function! s:Renderer.tile_color_char(tile)
+  let colors = ['_', ' ', '.', ',']
+  return colors[index([0] + self._game._setting.origin_numbers, a:tile) + 1]
+endfunction
+
+
+" for test
+function! threes#_canvas(...)
+  return call('s:Canvas_new', a:000)
+endfunction
+
+" A simple canvas system.  This treats ascii character only.
+let s:Canvas = {}
+
+function! s:to_canvas(...)
+  if type(a:1) == type({}) && has_key(a:1, '_field')
+    return a:1
+  endif
+  return call('s:Canvas_new', a:000)
+endfunction
+
+function! s:Canvas_new(...)
+  let canvas = deepcopy(s:Canvas)
+  call call(canvas.init, a:000, canvas)
+  return canvas
+endfunction
+
+function! s:Canvas.init(...)
+  let [self._width, self._height] = [0, 0]
+  if a:0 == 0
+    let lines = []
+  elseif a:0 == 2 && type(a:1) == type(0) && type(a:2) == type(0)
+    let lines = []
+    let [width, height] = a:000
+  elseif type(a:1) == type('')
+    let lines = split(a:1, "\n")
+  elseif type(a:1) == type([])
+    let lines = a:1
+  elseif type(a:1) == type({}) && has_key(a:1, '_field')
+    let lines = copy(a:1._field)
+  else
+    throw 'Canvas: Invalid argument.'
+  endif
+  let self._field = lines
+  if exists('width')
+    call self.extend(width, height)
+  else
+    let self._width = max(map(copy(self._field), 'strwidth(v:val)'))
+    let self._height = len(self._field)
+  endif
+  call self.reset_origin()
+endfunction
+
+function! s:Canvas.clear()
+  return map(self._field, 'substitute(v:val, ".", " ", "g")')
+endfunction
+
+function! s:Canvas.width()
+  return self._width
+endfunction
+
+function! s:Canvas.height()
+  return self._height
+endfunction
+
+function! s:Canvas.reset_origin()
+  call self.set_origin(0, 0)
+endfunction
+
+function! s:Canvas.set_origin(x, y)
+  let self._origin_x = a:x
+  let self._origin_y = a:y
+endfunction
+
+function! s:Canvas.draw(image, x, y)
+  let target = s:to_canvas(a:image)
+  let [x, y] = [a:x + self._origin_x, a:y + self._origin_y]
+  call self.extend(x + target.width(), y + target.height())
+  for n in range(target.height())
+    let line = self._field[y + n]
+    let self._field[y + n] =
+    \   s:head(line, x) .
+    \   target._field[n] .
+    \   line[x + target.width() :]
+  endfor
+endfunction
+
+function! s:Canvas.draw_center(image, y)
+  let target = s:to_canvas(a:image)
+  call self.draw(a:image, (self.width() - target.width()) / 2, a:y)
+endfunction
+
+function! s:Canvas.extend(width, height)
+  if self.width() < a:width
+    call map(self._field, 'v:val . repeat(" ", a:width - len(v:val))')
+    let self._width = a:width
+  endif
+  if self.height() < a:height
+    let line = repeat(' ', self.width())
+    let self._field += repeat([line], a:height - self.height())
+    let self._height = a:height
+  endif
+endfunction
+
+function! s:Canvas.resize(width, height)
+  call self.extend(a:width, a:height)
+  if 0 <= a:height && a:height < self.height()
+    let self._field = s:head(self._field, a:height)
+    let self._height = a:height
+  endif
+  if 0 <= a:width && a:width < self.width()
+    let expr = a:width == 0 ? '""' : 'v:val[: a:width - 1]'
+    call map(self._field, expr)
+    let self._width = a:width
+  endif
+endfunction
 
 function! threes#new(...)
   let threes = deepcopy(s:Threes)
@@ -396,6 +581,11 @@ function! s:centerize(str, width, ...)
   let left = padding / 2
   let right = padding - left
   return repeat(char, left) . a:str . repeat(char, right)
+endfunction
+
+function! s:head(x, size)
+  return a:size != 0           ? a:x[: a:size - 1] :
+  \      type(a:x) == type('') ? '' : []
 endfunction
 
 
