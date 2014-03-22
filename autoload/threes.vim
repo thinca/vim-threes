@@ -366,7 +366,7 @@ endfunction
 
 function! s:Renderer.next_tile_str()
   let next = self._game.next_tile()
-  return self._game.base_number() < next ? '+' : string(next)
+  return self._game.base_number() < next ? '+' : ''
 endfunction
 
 function! s:Renderer.tile_color_char(tile)
