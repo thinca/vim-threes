@@ -110,8 +110,11 @@ Does not exist yet.
 ==============================================================================
 TODO						*threes-todo*
 
-- More customed games.
+- Restart game.
+- Quit game.
 - Save records.
+- Resume feature.
+- More customized games.
 
 
 ==============================================================================
