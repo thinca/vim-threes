@@ -578,7 +578,7 @@ function! threes#start()
 endfunction
 
 function! s:init_buffer()
-  setlocal readonly nomodifiable buftype=nofile
+  setlocal readonly nomodifiable buftype=nofile bufhidden=wipe
   setlocal nonumber nowrap nolist
   setlocal nocursorline nocursorcolumn colorcolumn=
   setlocal filetype=threes
