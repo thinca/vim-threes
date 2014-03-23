@@ -65,6 +65,27 @@ function! s:Threes.tiles()
   return s:List.flatten(self._state.tiles)
 endfunction
 
+function! s:Threes.tile_list(...)
+  let list = []
+  let exclude_list = a:0 ? a:1 : []
+
+  let tiles = deepcopy(self._state.tiles)
+  for [x, y, tile] in exclude_list
+    if 0 <= x && 0 <= y && y < len(tiles) && x < len(tiles[y])
+      let tiles[y][x] = 0
+    endif
+  endfor
+  for x in range(self.width())
+    for y in range(self.height())
+      let tile = tiles[y][x]
+      if tile != 0
+        let list += [[x, y, tile]]
+      endif
+    endfor
+  endfor
+  return list
+endfunction
+
 function! s:Threes.next_tile()
   return self._state.next_tile
 endfunction
@@ -137,7 +158,7 @@ function! s:Threes.move(dx, dy)
       let to = tiles[ny + a:dy][nx + a:dx]
       let appended = self.append_tile(from, to)
       if appended
-        let moved += [[nx, ny]]
+        let moved += [[nx, ny, from]]
         let tiles[ny + a:dy][nx + a:dx] = appended
         let tiles[ny][nx] = 0
       endif
@@ -167,17 +188,36 @@ endfunction
 function! s:Threes.next(dx, dy)
   let result = self.move(a:dx, a:dy)
   if !empty(result.moved)
-    let self._state.tiles = result.tiles
     let positions = self.next_tile_positions(a:dx, a:dy, result.moved)
     let [next_x, next_y] = s:sample(positions)
-    call self.set_tile(next_x, next_y, self.next_tile())
-
-    if self.is_gameover()
-    else
+    try
+      let next_tile = [next_x - a:dx, next_y - a:dy, self.next_tile()]
+      call self.animate_slide(a:dx, a:dy, result.moved, next_tile)
+    finally
+      let self._state.tiles = result.tiles
+      call self.set_tile(next_x, next_y, self.next_tile())
       let self._state.next_tile = self.random_tile()
-    endif
+    endtry
   endif
   return self
+endfunction
+
+function! s:Threes.animate_slide(dx, dy, moved, next_tile)
+  let renderer = self._renderer
+  let width = renderer._tile_width + strwidth(renderer._chars.vertical)
+  let height = renderer._tile_height + 1
+  call renderer.set_moved_tile(a:moved + [a:next_tile])
+
+  let ticks = abs(min([width, height]))
+  for n in range(ticks)
+    let pos_x = a:dx * width * n / ticks
+    let pos_y = a:dy * height * n / ticks
+    call renderer.set_tile_animate(pos_x, pos_y)
+    call self.render()
+    sleep 10ms
+  endfor
+
+  call renderer.reset_tile_animate()
 endfunction
 
 function! s:Threes.random_tile()
@@ -250,9 +290,11 @@ function! s:Renderer.init(game)
   let self._chars.vertical = '|'
   let self._chars.cross = '+'
 
+  call self.reset_tile_animate()
+
   let vwidth = strwidth(self._chars.vertical)
   let self._canvas_width =
-  \   (self._tile_width + vwidth) * a:game.width() + vwidth
+  \   (self._tile_width + vwidth) * (a:game.width() + 2) + vwidth
   let self._canvas = s:Canvas_new(self._canvas_width, 0)
   let self._frame = self.make_frame(a:game.width(), a:game.height())
 endfunction
@@ -274,8 +316,9 @@ function! s:Renderer.render_game()
   call self.render_next(canvas)
 
   " Render board
-  call canvas.set_origin(0, canvas.height())
+  call canvas.set_origin(self._tile_width, canvas.height())
   call self.render_board(canvas)
+  call canvas.set_origin(0, canvas.origin_y())
   call canvas.reset_origin()
 
   " Render score
@@ -306,15 +349,34 @@ function! s:Renderer.render_board(canvas)
     let highest = -1
   endif
 
-  for y in range(game.height())
-    let cy = y * (self._tile_height + 1) + 1
-    let line = game._state.tiles[y]
-    for x in range(game.width())
-      let cx = x * (self._tile_width + 1) + 1
-      let tile = line[x]
-      call a:canvas.draw(self.get_tile(tile, tile == highest), cx, cy)
-    endfor
+  call self.render_tiles(a:canvas, game.tile_list(self._moved_tile),
+  \                      highest, 0, 0)
+  call self.render_tiles(a:canvas, self._moved_tile, highest,
+  \                      self._tile_dx, self._tile_dy)
+endfunction
+
+function! s:Renderer.render_tiles(canvas, tiles, highest, dx, dy)
+  for [x, y, tile] in a:tiles
+    let cx = x * (self._tile_width + 1) + 1 + a:dx
+    let cy = y * (self._tile_height + 1) + 1 + a:dy
+    let tile_image = self.get_tile(tile, tile == a:highest)
+    call a:canvas.draw(tile_image, cx, cy)
   endfor
+endfunction
+
+function! s:Renderer.set_tile_animate(dx, dy)
+  let self._tile_dx = a:dx
+  let self._tile_dy = a:dy
+endfunction
+
+function! s:Renderer.set_moved_tile(moved)
+  let self._moved_tile = a:moved
+endfunction
+
+function! s:Renderer.reset_tile_animate()
+  let self._moved_tile = []
+  let self._tile_dx = 0
+  let self._tile_dy = 0
 endfunction
 
 function! s:Renderer.make_frame(x, y)
@@ -348,10 +410,8 @@ function! s:Renderer.make_tile(tile, is_highest)
   let tile_width = self._tile_width
   let tile_height = self._tile_height
 
-  let color = self.tile_color_char(a:tile)
-  let tile_str = a:tile == 0 ? ''
-  \            : a:is_highest ? '*' . a:tile . '*'
-  \            : a:tile
+  let color = a:is_highest ? '*' : self.tile_color_char(a:tile)
+  let tile_str = a:tile == 0 ? '' : a:tile
 
   let line_tiles = []
   for n in range(tile_height)
@@ -436,6 +496,14 @@ endfunction
 
 function! s:Canvas.reset_origin()
   call self.set_origin(0, 0)
+endfunction
+
+function! s:Canvas.origin_x()
+  return self._origin_x
+endfunction
+
+function! s:Canvas.origin_y()
+  return self._origin_y
 endfunction
 
 function! s:Canvas.set_origin(x, y)
