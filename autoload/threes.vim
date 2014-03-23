@@ -582,6 +582,13 @@ function! s:init_buffer()
   setlocal nonumber nowrap nolist
   setlocal nocursorline nocursorcolumn colorcolumn=
   setlocal filetype=threes
+  let b:threes_cursor = s:current_cursor()
+  augroup plugin-threes-cursor
+    autocmd! * <buffer>
+    autocmd BufEnter <buffer> call s:hide_cursor()
+    autocmd BufLeave <buffer> execute b:threes_cursor
+  augroup END
+  call s:hide_cursor()
 endfunction
 
 function! s:define_keymappings()
@@ -659,6 +666,28 @@ endfunction
 function! s:head(x, size)
   return a:size != 0           ? a:x[: a:size - 1] :
   \      type(a:x) == type('') ? '' : []
+endfunction
+
+function! s:current_cursor()
+  if !has('gui_running')
+    return 'let &t_ve = ' . string(&t_ve)
+  endif
+  redir => cursor
+  silent! highlight Cursor
+  redir END
+  if cursor !~# 'xxx'
+    return ''
+  endif
+  return 'highlight Cursor ' .
+  \      substitute(matchstr(cursor, 'xxx\zs.*'), "\n", ' ', 'g')
+endfunction
+
+function! s:hide_cursor()
+  if has('gui_running')
+    highlight Cursor ctermfg=NONE ctermbg=NONE guifg=NONE guibg=NONE
+  else
+    set t_ve=
+  endif
 endfunction
 
 
