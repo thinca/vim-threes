@@ -325,6 +325,11 @@ function! s:Renderer.render_game()
   if gameover
     let score_line = 'score: ' . game.total_score()
     call canvas.draw_center(score_line, canvas.height() + 1)
+
+    if maparg('t', 'n') ==# '<Plug>(threes-tweet)'
+      let mes = 'Press "t" to tweet your score!'
+      call canvas.draw_center(mes, canvas.height() + 1)
+    endif
   endif
   return map(copy(canvas._field), 'substitute(v:val, "\\s\\+$", "", "")')
 endfunction
