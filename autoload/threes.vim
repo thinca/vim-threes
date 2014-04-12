@@ -277,9 +277,7 @@ function! s:Threes.restart()
 endfunction
 
 function! s:Threes.quit()
-  if self.is_gameover() || s:confirm_quit_game('End')
-    close
-  endif
+  close
 endfunction
 
 function! s:Threes.tweet()
@@ -599,10 +597,16 @@ endfunction
 
 function! threes#start()
   tabnew `='[threes]'`  " TODO: opener and bufname
-  let b:threes = threes#new()
   call s:define_keymappings()
   call s:init_buffer()
-  call b:threes.start()
+  if exists('s:current_threes') && !s:current_threes.is_gameover()
+    let b:threes = s:current_threes
+    call b:threes.render()
+  else
+    let b:threes = threes#new()
+    let s:current_threes = b:threes
+    call b:threes.start()
+  endif
 endfunction
 
 function! s:init_buffer()

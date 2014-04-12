@@ -7,10 +7,6 @@ if exists('b:current_syntax')
   finish
 endif
 
-if !exists('b:threes')
-  finish
-endif
-
 syntax match threesOriginTile1 /\.*\d*\.\+/ contains=threesOriginNumber1
 syntax match threesOriginTile2 /,*\d*,\+/ contains=threesOriginNumber2
 syntax match threesNormalTile /_*\d*_\+/ contains=threesNormalNumber

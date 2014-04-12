@@ -52,6 +52,7 @@ COMMANDS					*threes-commands*
 
 :ThreesStart					*:ThreesStart*
 	Start a new Threes! game.
+	If there is a playing data, resume it.
 
 ------------------------------------------------------------------------------
 FUNCTIONS					*threes-functions*
@@ -83,7 +84,6 @@ All keymappings can use only at threes buffer.
 
 <Plug>(threes-quit)				*<Plug>(threes-quit)*
 	Exit the game and close the game buffer.
-	This will confirm if the current game is not over.
 
 <Plug>(threes-tweet)				*<Plug>(threes-tweet)*
 	Tweets the result to Twitter.
@@ -121,7 +121,6 @@ Does not exist yet.
 TODO						*threes-todo*
 
 - Save records.
-- Resume feature.
 - More customized games.
 
 
@@ -129,6 +128,7 @@ TODO						*threes-todo*
 CHANGELOG					*threes-changelog*
 
 1.4-dev
+	- Add resume feature.
 	- Add restart feature.
 	- Add quit feature.
 
