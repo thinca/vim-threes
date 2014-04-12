@@ -1,5 +1,5 @@
 " Syntax file for threes
-" Version: 1.2
+" Version: 1.4
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
