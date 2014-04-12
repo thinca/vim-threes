@@ -81,6 +81,10 @@ All keymappings can use only at threes buffer.
 	Exit the current game, and then start a new game.
 	This will confirm if the current game is not over.
 
+<Plug>(threes-quit)				*<Plug>(threes-quit)*
+	Exit the game and close the game buffer.
+	This will confirm if the current game is not over.
+
 <Plug>(threes-tweet)				*<Plug>(threes-tweet)*
 	Tweets the result to Twitter.
 
@@ -101,6 +105,7 @@ j			<Plug>(threes-move-down)
 k			<Plug>(threes-move-up)
 l			<Plug>(threes-move-right)
 r			<Plug>(threes-restart)
+Q			<Plug>(threes-quit)
 t			<Plug>(threes-tweet)
 <C-l>			<Plug>(threes-redraw)
 
@@ -115,7 +120,6 @@ Does not exist yet.
 ==============================================================================
 TODO						*threes-todo*
 
-- Quit game.
 - Save records.
 - Resume feature.
 - More customized games.
@@ -126,6 +130,7 @@ CHANGELOG					*threes-changelog*
 
 1.4-dev
 	- Add restart feature.
+	- Add quit feature.
 
 1.3	2014-03-23
 	- Add animation.

@@ -274,6 +274,12 @@ function! s:Threes.restart()
   endif
 endfunction
 
+function! s:Threes.quit()
+  if self.is_gameover() || s:confirm_quit_game('End')
+    close
+  endif
+endfunction
+
 function! s:Threes.tweet()
   if self.is_gameover()
     call s:tweet(self.total_score())
@@ -343,6 +349,11 @@ function! s:Renderer.render_game()
 
     if maparg('r', 'n') ==# '<Plug>(threes-restart)'
       let mes = 'Press "r" to restart game'
+      call canvas.draw_center(mes, canvas.height())
+    endif
+
+    if maparg('Q', 'n') ==# '<Plug>(threes-quit)'
+      let mes = 'Press "Q" to quit game'
       call canvas.draw_center(mes, canvas.height())
     endif
   endif
@@ -617,6 +628,8 @@ function! s:define_keymappings()
   \       :<C-u>call b:threes.next(1, 0).render()<CR>
   noremap <buffer> <silent> <Plug>(threes-restart)
   \       :<C-u>call b:threes.restart()<CR>
+  noremap <buffer> <silent> <Plug>(threes-quit)
+  \       :<C-u>call b:threes.quit()<CR>
   noremap <buffer> <silent> <Plug>(threes-redraw)
   \       :<C-u>call b:threes.render()<CR>
   noremap <buffer> <silent> <Plug>(threes-tweet)
@@ -627,6 +640,7 @@ function! s:define_keymappings()
   map <buffer> k <Plug>(threes-move-up)
   map <buffer> l <Plug>(threes-move-right)
   map <buffer> r <Plug>(threes-restart)
+  map <buffer> Q <Plug>(threes-quit)
   map <buffer> <C-l> <Plug>(threes-redraw)
   map <buffer> t <Plug>(threes-tweet)
 endfunction
