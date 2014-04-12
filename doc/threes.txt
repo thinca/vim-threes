@@ -105,7 +105,7 @@ j			<Plug>(threes-move-down)
 k			<Plug>(threes-move-up)
 l			<Plug>(threes-move-right)
 r			<Plug>(threes-restart)
-Q			<Plug>(threes-quit)
+q			<Plug>(threes-quit)
 t			<Plug>(threes-tweet)
 <C-l>			<Plug>(threes-redraw)
 

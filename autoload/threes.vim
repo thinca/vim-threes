@@ -646,7 +646,7 @@ function! s:define_keymappings()
   map <buffer> k <Plug>(threes-move-up)
   map <buffer> l <Plug>(threes-move-right)
   map <buffer> r <Plug>(threes-restart)
-  map <buffer> Q <Plug>(threes-quit)
+  map <buffer> q <Plug>(threes-quit)
   map <buffer> <C-l> <Plug>(threes-redraw)
   map <buffer> t <Plug>(threes-tweet)
 endfunction
