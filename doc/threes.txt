@@ -77,6 +77,10 @@ All keymappings can use only at threes buffer.
 <Plug>(threes-move-right)			*<Plug>(threes-move-right)*
 	Move tiles to right.
 
+<Plug>(threes-restart)				*<Plug>(threes-restart)*
+	Exit the current game, and then start a new game.
+	This will confirm if the current game is not over.
+
 <Plug>(threes-tweet)				*<Plug>(threes-tweet)*
 	Tweets the result to Twitter.
 
@@ -96,6 +100,7 @@ h			<Plug>(threes-move-left)
 j			<Plug>(threes-move-down)
 k			<Plug>(threes-move-up)
 l			<Plug>(threes-move-right)
+r			<Plug>(threes-restart)
 t			<Plug>(threes-tweet)
 <C-l>			<Plug>(threes-redraw)
 
@@ -110,7 +115,6 @@ Does not exist yet.
 ==============================================================================
 TODO						*threes-todo*
 
-- Restart game.
 - Quit game.
 - Save records.
 - Resume feature.
@@ -119,6 +123,9 @@ TODO						*threes-todo*
 
 ==============================================================================
 CHANGELOG					*threes-changelog*
+
+1.4-dev
+	- Add restart feature.
 
 1.3	2014-03-23
 	- Add animation.

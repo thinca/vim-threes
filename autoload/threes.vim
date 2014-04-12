@@ -34,7 +34,9 @@ function! s:Threes.init(setting)
   \        repeat(self._setting.origin_numbers, origin_num) +
   \        repeat([self.base_number()], origin_num)
   let self._renderer = s:Renderer_new(self)
+endfunction
 
+function! s:Threes.reset()
   let self._state = {}
   let self._state.tiles =
   \        map(range(self.width()), 'repeat([0], self.height())')
@@ -120,6 +122,7 @@ function! s:Threes.is_gameover()
 endfunction
 
 function! s:Threes.new_game()
+  call self.reset()
   let tile_count = self.width() * self.height()
   let random_tiles = s:shuffle(range(tile_count))
   let init_tiles = random_tiles[: self._setting.init_count - 1]
@@ -265,6 +268,12 @@ function! s:Threes.total_score()
   return s:sum(map(self.tiles(), 'self.score(v:val)'))
 endfunction
 
+function! s:Threes.restart()
+  if self.is_gameover() || s:confirm_quit_game('Restart')
+    call self.start()
+  endif
+endfunction
+
 function! s:Threes.tweet()
   if self.is_gameover()
     call s:tweet(self.total_score())
@@ -321,14 +330,20 @@ function! s:Renderer.render_game()
   call canvas.set_origin(0, canvas.origin_y())
   call canvas.reset_origin()
 
-  " Render score
   if gameover
+    " Render score
     let score_line = 'score: ' . game.total_score()
     call canvas.draw_center(score_line, canvas.height() + 1)
 
+    call canvas.draw_center('', canvas.height() + 1)
     if maparg('t', 'n') ==# '<Plug>(threes-tweet)'
       let mes = 'Press "t" to tweet your score!'
-      call canvas.draw_center(mes, canvas.height() + 1)
+      call canvas.draw_center(mes, canvas.height())
+    endif
+
+    if maparg('r', 'n') ==# '<Plug>(threes-restart)'
+      let mes = 'Press "r" to restart game'
+      call canvas.draw_center(mes, canvas.height())
     endif
   endif
   return map(copy(canvas._field), 'substitute(v:val, "\\s\\+$", "", "")')
@@ -600,6 +615,8 @@ function! s:define_keymappings()
   \       :<C-u>call b:threes.next(0, -1).render()<CR>
   noremap <buffer> <silent> <Plug>(threes-move-right)
   \       :<C-u>call b:threes.next(1, 0).render()<CR>
+  noremap <buffer> <silent> <Plug>(threes-restart)
+  \       :<C-u>call b:threes.restart()<CR>
   noremap <buffer> <silent> <Plug>(threes-redraw)
   \       :<C-u>call b:threes.render()<CR>
   noremap <buffer> <silent> <Plug>(threes-tweet)
@@ -609,8 +626,19 @@ function! s:define_keymappings()
   map <buffer> j <Plug>(threes-move-down)
   map <buffer> k <Plug>(threes-move-up)
   map <buffer> l <Plug>(threes-move-right)
+  map <buffer> r <Plug>(threes-restart)
   map <buffer> <C-l> <Plug>(threes-redraw)
   map <buffer> t <Plug>(threes-tweet)
+endfunction
+
+function! s:confirm_quit_game(action_mes)
+  let msg = join([
+  \   'Careful!',
+  \   'You will lose all progress on your current board.',
+  \   a:action_mes . ' this game?',
+  \ ], "\n")
+  let answer = confirm(msg, "&Yes\n&No", 2, 'Question')
+  return answer == 1
 endfunction
 
 function! s:tweet(score)
