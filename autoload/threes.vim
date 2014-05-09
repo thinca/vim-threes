@@ -7,8 +7,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:V = vital#of('threes')
-let s:Random = s:V.import('Random.Xor128')
-call s:Random.srand()
+let s:Random = s:V.import('Random')
 let s:List = s:V.import('Data.List')
 
 
@@ -28,6 +27,7 @@ let s:Threes = {}
 function! s:Threes.init(setting)
   let self._setting = deepcopy(a:setting)
 
+  let self._random = s:Random.new()
   let self._base_number = s:sum(self._setting.origin_numbers)
   let origin_num = (self.width() + self.height()) / 2
   let self._origin_deck =
@@ -125,7 +125,7 @@ endfunction
 function! s:Threes.new_game()
   call self.reset()
   let tile_count = self.width() * self.height()
-  let random_tiles = s:shuffle(range(tile_count))
+  let random_tiles = self._random.shuffle(range(tile_count))
   let init_tiles = random_tiles[: self._setting.init_count - 1]
   for pos in init_tiles
     let x = pos % self.width()
@@ -193,7 +193,7 @@ function! s:Threes.next(dx, dy)
   let result = self.move(a:dx, a:dy)
   if !empty(result.moved)
     let positions = self.next_tile_positions(a:dx, a:dy, result.moved)
-    let [next_x, next_y] = s:sample(positions)
+    let [next_x, next_y] = self._random.sample(positions)
     try
       let next_tile = [next_x - a:dx, next_y - a:dy, self.next_tile()]
       call self.animate_slide(a:dx, a:dy, result.moved, next_tile)
@@ -229,15 +229,15 @@ function! s:Threes.random_tile()
   " large number
   let max_tile_radix = self.exp(self.highest_tile())
   let exp = max_tile_radix - self._setting.large_num_limit
-  if 0 < exp && s:random(self._setting.large_num_odds) == 0
+  if 0 < exp && self._random.range(self._setting.large_num_odds) == 0
     let base = self.base_number()
     let candidates = map(range(1, exp), 'base * float2nr(pow(2, v:val))')
-    return s:sample(candidates)
+    return self._random.sample(candidates)
   endif
 
   " from deck
   if empty(self._state.deck)
-    let self._state.deck = s:shuffle(copy(self._origin_deck))
+    let self._state.deck = self._random.shuffle(copy(self._origin_deck))
   endif
   return remove(self._state.deck, 0)
 endfunction
@@ -676,30 +676,6 @@ endfunction
 " --- Utilities
 function! s:sum(list)
   return eval(join(a:list, '+'))
-endfunction
-
-function! s:random(limit)
-  let r = s:Random.rand()
-  let n = r % a:limit
-  return abs(n)
-endfunction
-
-function! s:shuffle(list)
-  let pos = len(a:list)
-  while 1 < pos
-    let n = s:random(pos)
-    let pos -= 1
-    if n != pos
-      let temp = a:list[n]
-      let a:list[n] = a:list[pos]
-      let a:list[pos] = temp
-    endif
-  endwhile
-  return a:list
-endfunction
-
-function! s:sample(list)
-  return a:list[s:random(len(a:list))]
 endfunction
 
 function! s:centerize(str, width, ...)
