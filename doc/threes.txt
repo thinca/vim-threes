@@ -113,7 +113,10 @@ t			<Plug>(threes-tweet)
 ==============================================================================
 CUSTOMIZING					*threes-customizing*
 
-Does not exist yet.
+g:threes#data_directory				*g:threes#data_directory*
+	A directory to store your records.
+
+	Default: "~/.threesvim"
 
 
 

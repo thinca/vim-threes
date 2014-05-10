@@ -10,6 +10,9 @@ let s:V = vital#of('threes')
 let s:Random = s:V.import('Random')
 let s:List = s:V.import('Data.List')
 
+if !exists('g:threes#data_directory')
+  let g:threes#data_directory = expand('~/.threesvim')
+endif
 
 let s:tweet_template = 'I just scored %s in threes.vim! https://github.com/thinca/vim-threes #threesvim'
 
