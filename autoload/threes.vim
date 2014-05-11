@@ -44,7 +44,7 @@ function! s:Threes.reset()
   let self._state.tiles =
   \        map(range(self.width()), 'repeat([0], self.height())')
   let self._state.deck = []
-  let self._state.tick = 0
+  let self._state.steps = []
 endfunction
 
 function! s:Threes.width()
@@ -90,6 +90,10 @@ function! s:Threes.tile_list(...)
     endfor
   endfor
   return list
+endfunction
+
+function! s:Threes.steps()
+  return self._state.steps
 endfunction
 
 function! s:Threes.next_tile()
@@ -204,7 +208,7 @@ function! s:Threes.next(dx, dy)
       let self._state.tiles = result.tiles
       call self.set_tile(next_x, next_y, self.next_tile())
       let self._state.next_tile = self.random_tile()
-      let self._state.tick += 1
+      let self._state.steps += [[a:dx, a:dy]]
     endtry
   endif
   return self
