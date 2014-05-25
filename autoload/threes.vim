@@ -25,6 +25,8 @@ let s:default_setting = {
 \   'large_num_odds': 21,
 \ }
 
+let s:step_patterns = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+
 let s:Threes = {}
 
 function! s:Threes.init(setting)
@@ -218,7 +220,7 @@ function! s:Threes.next(dx, dy)
       let self._state.tiles = result.tiles
       call self.set_tile(next_x, next_y, self.next_tile())
       let self._state.next_tile = self.random_tile()
-      let self._state.steps += [[a:dx, a:dy]]
+      let self._state.steps += [index(s:step_patterns, [a:dx, a:dy])]
     endtry
     if self.is_gameover()
       call threes#record#add(self)
