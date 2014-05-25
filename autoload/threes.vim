@@ -30,7 +30,6 @@ let s:Threes = {}
 function! s:Threes.init(setting)
   let self._setting = deepcopy(a:setting)
 
-  let self._random = s:Random.new()
   let self._base_number = s:sum(self._setting.origin_numbers)
   let origin_num = (self.width() + self.height()) / 2
   let self._origin_deck =
@@ -45,6 +44,9 @@ function! s:Threes.reset()
   \        map(range(self.width()), 'repeat([0], self.height())')
   let self._state.deck = []
   let self._state.steps = []
+
+  let self._state.seed = get(self._setting, 'seed', s:Random.next(1))
+  let self._random = s:Random.new('', self._state.seed)
 endfunction
 
 function! s:Threes.width()
@@ -69,6 +71,14 @@ endfunction
 
 function! s:Threes.tiles()
   return s:List.flatten(self._state.tiles)
+endfunction
+
+function! s:Threes.seed()
+  return self._state.seed
+endfunction
+
+function! s:Threes.steps()
+  return self._state.steps
 endfunction
 
 function! s:Threes.tile_list(...)
