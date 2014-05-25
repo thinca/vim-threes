@@ -220,6 +220,10 @@ function! s:Threes.next(dx, dy)
       let self._state.next_tile = self.random_tile()
       let self._state.steps += [[a:dx, a:dy]]
     endtry
+    if self.is_gameover()
+      call threes#record#add(self)
+      call s:save_record()
+    endif
   endif
   return self
 endfunction
@@ -688,6 +692,16 @@ function! s:tweet(score)
     let url = 'https://twitter.com/intent/tweet?text=%s'
     call openbrowser#open(printf(url, tweet_text))
   endif
+endfunction
+
+function! s:save_record()
+  if empty(g:threes#data_directory)
+    return
+  endif
+  if !isdirectory(g:threes#data_directory)
+    call mkdir(g:threes#data_directory, 'p')
+  endif
+  call threes#record#save(g:threes#data_directory . '/records.dat')
 endfunction
 
 " --- Utilities
