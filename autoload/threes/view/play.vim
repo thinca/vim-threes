@@ -21,7 +21,7 @@ endfunction
 
 function! s:init_buffer()
   setlocal readonly nomodifiable buftype=nofile bufhidden=wipe
-  setlocal nonumber nowrap nolist
+  setlocal nonumber norelativenumber nowrap nolist
   setlocal nocursorline nocursorcolumn colorcolumn=
   setlocal filetype=threes
   let b:threes_cursor = s:current_cursor()
