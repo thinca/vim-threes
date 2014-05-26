@@ -356,6 +356,8 @@ function! s:save_record()
   call threes#record#save(g:threes#data_directory . '/records.dat')
 endfunction
 
+call threes#record#load(g:threes#data_directory . '/records.dat')
+
 " --- Utilities
 function! s:sum(list)
   return eval(join(a:list, '+'))
