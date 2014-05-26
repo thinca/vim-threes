@@ -321,59 +321,7 @@ function! threes#new(...)
 endfunction
 
 function! threes#start()
-  tabnew `='[threes]'`  " TODO: opener and bufname
-  call s:define_keymappings()
-  call s:init_buffer()
-  if exists('s:current_threes') && !s:current_threes.is_gameover()
-    let b:threes = s:current_threes
-    call b:threes.render()
-  else
-    let b:threes = threes#new()
-    let s:current_threes = b:threes
-    call b:threes.start()
-  endif
-endfunction
-
-function! s:init_buffer()
-  setlocal readonly nomodifiable buftype=nofile bufhidden=wipe
-  setlocal nonumber nowrap nolist
-  setlocal nocursorline nocursorcolumn colorcolumn=
-  setlocal filetype=threes
-  let b:threes_cursor = s:current_cursor()
-  augroup plugin-threes-cursor
-    autocmd! * <buffer>
-    autocmd BufEnter <buffer> call s:hide_cursor()
-    autocmd BufLeave <buffer> execute b:threes_cursor
-  augroup END
-  call s:hide_cursor()
-endfunction
-
-function! s:define_keymappings()
-  noremap <buffer> <silent> <Plug>(threes-move-left)
-  \       :<C-u>call b:threes.next(-1, 0).render()<CR>
-  noremap <buffer> <silent> <Plug>(threes-move-down)
-  \       :<C-u>call b:threes.next(0, 1).render()<CR>
-  noremap <buffer> <silent> <Plug>(threes-move-up)
-  \       :<C-u>call b:threes.next(0, -1).render()<CR>
-  noremap <buffer> <silent> <Plug>(threes-move-right)
-  \       :<C-u>call b:threes.next(1, 0).render()<CR>
-  noremap <buffer> <silent> <Plug>(threes-restart)
-  \       :<C-u>call b:threes.restart()<CR>
-  noremap <buffer> <silent> <Plug>(threes-quit)
-  \       :<C-u>call b:threes.quit()<CR>
-  noremap <buffer> <silent> <Plug>(threes-redraw)
-  \       :<C-u>call b:threes.render()<CR>
-  noremap <buffer> <silent> <Plug>(threes-tweet)
-  \       :<C-u>call b:threes.tweet()<CR>
-
-  map <buffer> h <Plug>(threes-move-left)
-  map <buffer> j <Plug>(threes-move-down)
-  map <buffer> k <Plug>(threes-move-up)
-  map <buffer> l <Plug>(threes-move-right)
-  map <buffer> r <Plug>(threes-restart)
-  map <buffer> q <Plug>(threes-quit)
-  map <buffer> <C-l> <Plug>(threes-redraw)
-  map <buffer> t <Plug>(threes-tweet)
+  tabnew `='threes://play'`  " TODO: opener
 endfunction
 
 function! s:confirm_quit_game(action_mes)
@@ -412,29 +360,6 @@ endfunction
 function! s:sum(list)
   return eval(join(a:list, '+'))
 endfunction
-
-function! s:current_cursor()
-  if !has('gui_running')
-    return 'let &t_ve = ' . string(&t_ve)
-  endif
-  redir => cursor
-  silent! highlight Cursor
-  redir END
-  if cursor !~# 'xxx'
-    return ''
-  endif
-  return 'highlight Cursor ' .
-  \      substitute(matchstr(cursor, 'xxx\zs.*'), "\n", ' ', 'g')
-endfunction
-
-function! s:hide_cursor()
-  if has('gui_running')
-    highlight Cursor ctermfg=NONE ctermbg=NONE guifg=NONE guibg=NONE
-  else
-    set t_ve=
-  endif
-endfunction
-
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

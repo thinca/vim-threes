@@ -13,5 +13,10 @@ set cpo&vim
 
 command! ThreesStart call threes#start()
 
+augroup plugin-threes
+  autocmd!
+  autocmd BufReadCmd threes://* call threes#view#read(expand('<amatch>'))
+augroup END
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
