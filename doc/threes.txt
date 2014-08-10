@@ -54,6 +54,9 @@ COMMANDS					*threes-commands*
 	Start a new Threes! game.
 	If there is a playing data, resume it.
 
+:ThreesShowRecord				*:ThreesShowRecord*
+	Show your records.
+
 ------------------------------------------------------------------------------
 FUNCTIONS					*threes-functions*
 

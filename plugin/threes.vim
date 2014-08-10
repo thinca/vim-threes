@@ -12,6 +12,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 command! ThreesStart call threes#start()
+command! ThreesShowRecord call threes#show_record()
 
 augroup plugin-threes
   autocmd!

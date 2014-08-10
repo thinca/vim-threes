@@ -6,9 +6,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:V = vital#of('threes')
-let s:Random = s:V.import('Random')
-let s:List = s:V.import('Data.List')
+let g:threes#vital = vital#of('threes')
+let s:Random = g:threes#vital.import('Random')
+let s:List = g:threes#vital.import('Data.List')
 
 if !exists('g:threes#data_directory')
   let g:threes#data_directory = expand('~/.threesvim')
@@ -322,6 +322,10 @@ endfunction
 
 function! threes#start()
   tabnew `='threes://play'`  " TODO: opener
+endfunction
+
+function! threes#show_record()
+  tabnew `='threes://record'`  " TODO: opener
 endfunction
 
 function! s:confirm_quit_game(action_mes)

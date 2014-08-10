@@ -6,6 +6,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:List = g:threes#vital.import('Data.List')
+
 let s:DATA_VERSION = 1
 
 let s:records = []
@@ -36,6 +38,11 @@ function! threes#record#list()
   return copy(s:records)
 endfunction
 
+function! threes#record#best(n)
+  let best = s:List.sort_by(copy(s:records), '-v:val.score')
+  return len(best) <= a:n ? best : best[: a:n - 1]
+endfunction
+
 function! threes#record#add(threes)
   call add(s:records, threes#record#make(a:threes))
   unlet! s:stats
@@ -48,6 +55,7 @@ function! threes#record#make(threes)
   \   'tiles': a:threes.tiles(),
   \   'seed': a:threes.seed(),
   \   'steps': a:threes.steps(),
+  \   'finish': a:threes.is_gameover(),
   \   'date': localtime(),
   \ }
 endfunction
