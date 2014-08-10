@@ -1,6 +1,6 @@
 *threes.txt*	Play Threes! in Vim!
 
-Version: 1.4
+Version: 1.5
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -132,6 +132,10 @@ TODO						*threes-todo*
 
 ==============================================================================
 CHANGELOG					*threes-changelog*
+
+1.5	2014-08-10
+	- Score recording feature.
+	  - Add |:ThreesShowRecord| command.
 
 1.4	2014-04-12
 	- Add resume feature.
