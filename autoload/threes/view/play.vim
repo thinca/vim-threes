@@ -23,6 +23,7 @@ function! s:init_buffer()
   setlocal readonly nomodifiable buftype=nofile bufhidden=wipe
   setlocal nonumber norelativenumber nowrap nolist
   setlocal nocursorline nocursorcolumn colorcolumn=
+  setlocal conceallevel=3 concealcursor+=n
   setlocal filetype=threes
   let b:threes_cursor = s:current_cursor()
   augroup plugin-threes-cursor

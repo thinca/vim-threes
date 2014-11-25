@@ -16,9 +16,10 @@ syntax match threesOriginNumber2 /\d\+/ contained
 syntax match threesNormalNumber /\d\+/ contained
 syntax match threesHighestNumber /\d\+/ contained
 
-syntax match threesNextArea /^\s*|\([.,_*]\)\1*+\?\1*|\s*$/ contains=threesNextBigTile,threesOriginTile1,threesOriginTile2,threesNormalTile
+syntax match threesNextArea /^.*\~$/ contains=threesNextBigTile,threesOriginTile1,threesOriginTile2,threesNormalTile,threesNextAreaMarker
 syntax match threesNextBigTile /_\++_\+/ contains=threesNextBigMark contained
 syntax match threesNextBigMark /+/ contained
+syntax match threesNextAreaMarker /\~/ contained conceal
 
 if has('gui_running') || &t_Co == 256
   highlight default threesOriginTile1   ctermbg=81  ctermfg=81  guibg=#66CCFF guifg=#66CCFF

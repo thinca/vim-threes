@@ -23,7 +23,8 @@ let s:default_setting = {
 \   'init_count': 9,
 \   'large_num_limit': 3,
 \   'large_num_odds': 21,
-\   'hide_large_next_tile': 1,
+\   'hide_large_next_tile': 0,
+\   'large_next_tile_count': 3,
 \ }
 
 let s:step_patterns = [[-1, 0], [1, 0], [0, -1], [0, 1]]
@@ -113,6 +114,10 @@ function! s:Threes.next_tile()
   return self._state.next_tile
 endfunction
 
+function! s:Threes.next_tile_candidates()
+  return self._state.next_tile_candidates
+endfunction
+
 function! s:Threes.highest_tile()
   return max(self.tiles())
 endfunction
@@ -152,7 +157,7 @@ function! s:Threes.new_game()
     let y = pos / self.height()
     call self.set_tile(x, y, self.random_tile())
   endfor
-  let self._state.next_tile = self.random_tile()
+  call self.update_next_tile()
 endfunction
 
 function! s:Threes.start()
@@ -220,7 +225,7 @@ function! s:Threes.next(dx, dy)
     finally
       let self._state.tiles = result.tiles
       call self.set_tile(next_x, next_y, self.next_tile())
-      let self._state.next_tile = self.random_tile()
+      call self.update_next_tile()
       let self._state.steps += [index(s:step_patterns, [a:dx, a:dy])]
     endtry
     if self.is_gameover()
@@ -229,6 +234,32 @@ function! s:Threes.next(dx, dy)
     endif
   endif
   return self
+endfunction
+
+function! s:Threes.update_next_tile()
+  let self._state.next_tile = self.random_tile()
+  let self._state.next_tile_candidates =
+  \     self.make_next_tile_candidates(self._state.next_tile)
+endfunction
+
+function! s:Threes.make_next_tile_candidates(next_tile)
+  let tile_count = self._setting.large_next_tile_count
+  if self._setting.hide_large_next_tile ||
+  \   tile_count <= 1 ||
+  \   !self.is_large_number(a:next_tile)
+    return [a:next_tile]
+  endif
+
+  let large_nums = self.large_numbers()
+  if len(large_nums) <= tile_count
+    return large_nums
+  endif
+
+  let index = index(large_nums, a:next_tile)
+  let n = self._random.range(tile_count)
+  let begin = index - n
+  let begin = sort([0, begin, len(large_nums) - tile_count])[1]
+  return large_nums[begin : begin + tile_count - 1]
 endfunction
 
 function! s:Threes.animate_slide(dx, dy, moved, next_tile)
@@ -251,12 +282,10 @@ endfunction
 
 function! s:Threes.random_tile()
   " large number
-  let max_tile_radix = self.exp(self.highest_tile())
-  let exp = max_tile_radix - self._setting.large_num_limit
-  if 0 < exp && self._random.range(self._setting.large_num_odds) == 0
-    let base = self.base_number()
-    let candidates = map(range(1, exp), 'base * float2nr(pow(2, v:val))')
-    return self._random.sample(candidates)
+  let large_nums = self.large_numbers()
+  if len(large_nums) != 0 &&
+  \   self._random.range(self._setting.large_num_odds) == 0
+    return self._random.sample(large_nums)
   endif
 
   " from deck
@@ -264,6 +293,17 @@ function! s:Threes.random_tile()
     let self._state.deck = self._random.shuffle(copy(self._origin_deck))
   endif
   return remove(self._state.deck, 0)
+endfunction
+
+function! s:Threes.is_large_number(number)
+  return self.base_number() < a:number
+endfunction
+
+function! s:Threes.large_numbers()
+  let max_tile_radix = self.exp(self.highest_tile())
+  let exp = max([max_tile_radix - self._setting.large_num_limit, 0])
+  let base = self.base_number()
+  return map(range(1, exp), 'base * float2nr(pow(2, v:val))')
 endfunction
 
 function! s:Threes.render()

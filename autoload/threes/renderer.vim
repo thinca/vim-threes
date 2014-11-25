@@ -81,12 +81,20 @@ endfunction
 
 function! s:Renderer.render_next(canvas)
   let tile_width = self._tile_width
-  let color = self.tile_color_char(self._game.next_tile())
-  let next_tile = s:centerize(self.next_tile_str(), tile_width, color)
-  let frame = self.make_frame(1, 1, 1)
+
+  let tiles = self._game.next_tile_candidates()
+  let frame = self.make_frame(len(tiles), 1, 1)
+  let frame_canvas = threes#canvas#new(frame)
+  for n in range(len(tiles))
+    let tile = tiles[n]
+    let color = self.tile_color_char(tile)
+    let next_tile = s:centerize(self.next_tile_str(tile), tile_width, color)
+    call frame_canvas.draw(next_tile, 1 + (tile_width + 1) * n, 1)
+  endfor
+  call frame_canvas.draw('~', frame_canvas.width(), 1)
+
   call a:canvas.draw_center('NEXT', 0)
-  call a:canvas.draw_center(frame, 1)
-  call a:canvas.draw_center(next_tile, 2)
+  call a:canvas.draw_center(frame_canvas, 1)
 endfunction
 
 function! s:Renderer.render_board(canvas)
@@ -172,12 +180,11 @@ function! s:Renderer.make_tile(tile, is_highest)
   return line_tiles
 endfunction
 
-function! s:Renderer.next_tile_str()
-  let next = self._game.next_tile()
-  if next <= self._game.base_number()
+function! s:Renderer.next_tile_str(next_tile)
+  if a:next_tile <= self._game.base_number()
     return ''
   endif
-  return self._game._setting.hide_large_next_tile ? '+' : next
+  return self._game._setting.hide_large_next_tile ? '+' : a:next_tile
 endfunction
 
 function! s:Renderer.tile_color_char(tile)
