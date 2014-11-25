@@ -174,7 +174,10 @@ endfunction
 
 function! s:Renderer.next_tile_str()
   let next = self._game.next_tile()
-  return self._game.base_number() < next ? '+' : ''
+  if next <= self._game.base_number()
+    return ''
+  endif
+  return self._game._setting.hide_large_next_tile ? '+' : next
 endfunction
 
 function! s:Renderer.tile_color_char(tile)

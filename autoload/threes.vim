@@ -23,6 +23,7 @@ let s:default_setting = {
 \   'init_count': 9,
 \   'large_num_limit': 3,
 \   'large_num_odds': 21,
+\   'hide_large_next_tile': 1,
 \ }
 
 let s:step_patterns = [[-1, 0], [1, 0], [0, -1], [0, 1]]
