@@ -135,11 +135,11 @@ function! s:Renderer.make_frame(x, y)
   let c = self._chars
 
   let tile_h = c.cross . repeat(c.horizontal, tile_width)
-  let h = repeat(tile_h, self._game.width()) . c.cross
+  let h = repeat(tile_h, a:x) . c.cross
   let tile_v = c.vertical . repeat(' ', tile_width)
-  let v = repeat(tile_v, self._game.width()) . c.vertical
+  let v = repeat(tile_v, a:x) . c.vertical
   let tile_line = [h] + repeat([v], tile_height)
-  let board = repeat(tile_line, self._game.height()) + [h]
+  let board = repeat(tile_line, a:y) + [h]
   return board
 endfunction
 
