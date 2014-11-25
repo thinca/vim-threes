@@ -81,14 +81,12 @@ endfunction
 
 function! s:Renderer.render_next(canvas)
   let tile_width = self._tile_width
-  let vertical = self._chars.vertical
   let color = self.tile_color_char(self._game.next_tile())
   let next_tile = s:centerize(self.next_tile_str(), tile_width, color)
-  let line = self.make_horizontal(tile_width)
+  let frame = self.make_frame(1, 1, 1)
   call a:canvas.draw_center('NEXT', 0)
-  call a:canvas.draw_center(line, 1)
-  call a:canvas.draw_center(vertical . next_tile . vertical, 2)
-  call a:canvas.draw_center(line, 3)
+  call a:canvas.draw_center(frame, 1)
+  call a:canvas.draw_center(next_tile, 2)
 endfunction
 
 function! s:Renderer.render_board(canvas)
@@ -129,9 +127,9 @@ function! s:Renderer.reset_tile_animate()
   let self._tile_dy = 0
 endfunction
 
-function! s:Renderer.make_frame(x, y)
+function! s:Renderer.make_frame(x, y, ...)
   let tile_width = self._tile_width
-  let tile_height = self._tile_height
+  let tile_height = get(a:000, 0, self._tile_height)
   let c = self._chars
 
   let tile_h = c.cross . repeat(c.horizontal, tile_width)
