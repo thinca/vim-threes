@@ -76,7 +76,7 @@ function! s:Renderer.render_game()
       call canvas.draw_center(mes, canvas.height())
     endif
   endif
-  return map(copy(canvas._field), 'substitute(v:val, "\\s\\+$", "", "")')
+  return map(canvas.to_lines(), 'substitute(v:val, "\\s\\+$", "", "")')
 endfunction
 
 function! s:Renderer.render_next(canvas)

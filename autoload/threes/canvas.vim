@@ -120,6 +120,10 @@ function! s:Canvas.resize(width, height)
   endif
 endfunction
 
+function! s:Canvas.to_lines()
+  return copy(self._field)
+endfunction
+
 function! s:head(x, size)
   return a:size != 0           ? a:x[: a:size - 1] :
   \      type(a:x) == type('') ? '' : []
