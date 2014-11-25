@@ -24,7 +24,8 @@ function! threes#record#load(file)
     if remove(lines, 0) != s:DATA_VERSION
       " TODO: Migration
     endif
-    let [s:stat; s:save_data.records] = map(lines, 'eval(v:val)')
+    call remove(lines, 0)  " stats
+    let s:save_data.records = map(lines, 'eval(v:val)')
   else
     let s:save_data.records = []
   endif
