@@ -21,11 +21,7 @@ endfunction
 function! threes#record#load(file)
   if filereadable(a:file)
     let lines = readfile(a:file)
-    if remove(lines, 0) != s:DATA_VERSION
-      " TODO: Migration
-    endif
-    call remove(lines, 0)  " stats
-    let s:save_data.records = map(lines, 'eval(v:val)')
+    let s:save_data = s:load_savedata(lines)
   else
     let s:save_data.records = []
   endif
@@ -82,6 +78,23 @@ endfunction
 
 function! s:sum(list)
   return eval(join(a:list, '+'))
+endfunction
+
+function! s:load_savedata(lines)
+  let ver = remove(a:lines, 0)
+  let savedata = s:load_version_{ver}(a:lines)
+  while ver != s:DATA_VERSION
+    let savedata = s:migrate_version_{ver}_to_{ver + 1}(savedata)
+    let ver += 1
+  endwhile
+  return savedata
+endfunction
+
+function! s:load_version_1(lines)
+  call remove(a:lines, 0)  " stats
+  return {
+  \   'records': map(a:lines, 'eval(v:val)'),
+  \ }
 endfunction
 
 
