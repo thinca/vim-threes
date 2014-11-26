@@ -116,10 +116,15 @@ t			<Plug>(threes-tweet)
 ==============================================================================
 CUSTOMIZING					*threes-customizing*
 
-g:threes#data_directory				*g:threes#data_directory*
+g:threes#data_directory			*g:threes#data_directory*
 	A directory to store your records.
 
 	Default: "~/.threesvim"
+
+g:threes#start_with_higher_tile		*g:threes#start_with_higher_tile*
+	When this is not zero, you can start new games with higher tile.
+
+	Default: 0
 
 
 

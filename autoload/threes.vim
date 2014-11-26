@@ -14,6 +14,10 @@ if !exists('g:threes#data_directory')
   let g:threes#data_directory = expand('~/.threesvim')
 endif
 
+if !exists('g:threes#start_with_higher_tile')
+  let g:threes#start_with_higher_tile = 0
+endif
+
 let s:tweet_template = 'I just scored %s in threes.vim! https://github.com/thinca/vim-threes #threesvim'
 
 let s:default_setting = {
@@ -21,6 +25,7 @@ let s:default_setting = {
 \   'height': 4,
 \   'origin_numbers': [1, 2],
 \   'init_count': 9,
+\   'init_higher_tile': 0,
 \   'large_num_limit': 3,
 \   'large_num_odds': 21,
 \   'hide_large_next_tile': 0,
@@ -152,13 +157,27 @@ endfunction
 
 function! s:Threes.new_game()
   call self.reset()
+
   let tile_count = self.width() * self.height()
-  let random_tiles = self._random.shuffle(range(tile_count))
-  let init_tiles = random_tiles[: self._setting.init_count - 1]
+  let tiles = range(tile_count)
+  let init_count = self._setting.init_count
+
+  if self._setting.init_higher_tile
+    " put the higher tile on corner
+    let x = self._random.sample([0, self.width() - 1])
+    let y = self._random.sample([0, self.height() - 1])
+    call self.set_tile(x, y, self._setting.init_higher_tile)
+    let pos = x + y * self.height()
+    call filter(tiles, 'v:val != pos')
+    let init_count -= 1
+  endif
+
+  let random_tiles = self._random.shuffle(tiles)
+  let init_tiles = random_tiles[: init_count - 1]
   for pos in init_tiles
     let x = pos % self.width()
     let y = pos / self.height()
-    call self.set_tile(x, y, self.random_tile())
+    call self.set_tile(x, y, self.random_tile(1))
   endfor
   call self.update_next_tile()
 endfunction
@@ -283,12 +302,16 @@ function! s:Threes.animate_slide(dx, dy, moved, next_tile)
   call renderer.reset_tile_animate()
 endfunction
 
-function! s:Threes.random_tile()
-  " large number
-  let large_nums = self.large_numbers()
-  if len(large_nums) != 0 &&
-  \   self._random.range(self._setting.large_num_odds) == 0
-    return self._random.sample(large_nums)
+function! s:Threes.random_tile(...)
+  let not_use_large_number = a:0 ? a:1 : 0
+
+  if !not_use_large_number
+    " large number
+    let large_nums = self.large_numbers()
+    if len(large_nums) != 0 &&
+    \   self._random.range(self._setting.large_num_odds) == 0
+      return self._random.sample(large_nums)
+    endif
   endif
 
   " from deck
