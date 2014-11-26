@@ -33,13 +33,16 @@ let s:Threes = {}
 
 function! s:Threes.init(setting)
   let self._setting = deepcopy(a:setting)
+  call self.update_setting()
+  let self._renderer = threes#renderer#new(self)
+endfunction
 
+function! s:Threes.update_setting()
   let self._base_number = s:sum(self._setting.origin_numbers)
   let origin_num = (self.width() + self.height()) / 2
   let self._origin_deck =
   \        repeat(self._setting.origin_numbers, origin_num) +
   \        repeat([self.base_number()], origin_num)
-  let self._renderer = threes#renderer#new(self)
 endfunction
 
 function! s:Threes.reset()
@@ -334,8 +337,12 @@ function! s:Threes.total_score()
   return s:sum(map(self.tiles(), 'self.score(v:val)'))
 endfunction
 
-function! s:Threes.restart()
+function! s:Threes.restart(...)
   if self.is_gameover() || s:confirm_quit_game('Restart')
+    if a:0
+      call extend(self._setting, a:1)
+      call self.update_setting()
+    endif
     call self.start()
   endif
 endfunction
