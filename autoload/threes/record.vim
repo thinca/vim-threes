@@ -8,7 +8,7 @@ set cpo&vim
 
 let s:List = g:threes#vital.import('Data.List')
 
-let s:DATA_VERSION = 1
+let s:DATA_VERSION = 2
 
 let s:save_data = {
 \   'records': [],
@@ -49,6 +49,7 @@ endfunction
 
 function! threes#record#make(threes)
   return {
+  \   'config': a:threes._config,
   \   'score': a:threes.total_score(),
   \   'highest_tile': a:threes.highest_tile(),
   \   'tiles': a:threes.tiles(),
@@ -95,6 +96,25 @@ function! s:load_version_1(lines)
   return {
   \   'records': map(a:lines, 'eval(v:val)'),
   \ }
+endfunction
+let s:load_version_2 = function('s:load_version_1')
+
+function! s:migrate_version_1_to_2(savedata)
+  let config = {
+  \   'width': 4,
+  \   'height': 4,
+  \   'origin_numbers': [1, 2],
+  \   'init_count': 9,
+  \   'init_higher_tile': 0,
+  \   'large_num_limit': 3,
+  \   'large_num_odds': 21,
+  \   'hide_large_next_tile': 1,
+  \   'large_next_tile_count': 1,
+  \ }
+  for record in a:savedata.records
+    let record.config = deepcopy(config)
+  endfor
+  return a:savedata
 endfunction
 
 
