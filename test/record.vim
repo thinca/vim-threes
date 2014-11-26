@@ -3,12 +3,12 @@ call themis#helper('command').with(themis#helper('assert'))
 
 let g:threes#data_directory = ''
 
-function! s:suite.before_each()
+function! s:suite.before_each() abort
   let self.t = threes#new()
   call self.t.new_game()
 endfunction
 
-function! s:suite.make()
+function! s:suite.make() abort
   let self.t._state.tiles = [
   \   [3,   2,  3,   6],
   \   [48, 12,  192, 2],
@@ -22,7 +22,7 @@ function! s:suite.make()
   Assert Equals(record.highest_tile, 192)
 endfunction
 
-function! s:suite.stat()
+function! s:suite.stat() abort
   call threes#record#clear()
   let self.t._state.tiles = [
   \   [3,   2,  3,   6],
@@ -55,5 +55,5 @@ function! s:suite.stat()
   Assert Equals(stats.highest_tile, 192)
 endfunction
 
-function! s:suite.save_and_load()
+function! s:suite.save_and_load() abort
 endfunction

@@ -6,17 +6,17 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! threes#view#record#open()
+function! threes#view#record#open() abort
   call s:draw()
 endfunction
 
-function! s:init_buffer()
+function! s:init_buffer() abort
   setlocal readonly nomodifiable buftype=nofile bufhidden=wipe
   setlocal nonumber norelativenumber nowrap nolist
   setlocal nocursorline nocursorcolumn colorcolumn=
 endfunction
 
-function! s:draw()
+function! s:draw() abort
   setlocal noreadonly modifiable
   let record_list = threes#record#best(10)
   let lines = [
@@ -31,7 +31,7 @@ function! s:draw()
   redraw
 endfunction
 
-function! s:make_record_line(index, record)
+function! s:make_record_line(index, record) abort
   return printf(' %2d.   %6d  %s',
   \   a:index + 1,
   \   a:record.score,

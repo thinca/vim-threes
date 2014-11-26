@@ -6,7 +6,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! threes#view#play#open()
+function! threes#view#play#open() abort
   call s:define_keymappings()
   call s:init_buffer()
   if exists('s:current_threes') && !s:current_threes.is_gameover()
@@ -19,7 +19,7 @@ function! threes#view#play#open()
   endif
 endfunction
 
-function! s:init_buffer()
+function! s:init_buffer() abort
   setlocal readonly nomodifiable buftype=nofile bufhidden=wipe
   setlocal nonumber norelativenumber nowrap nolist
   setlocal nocursorline nocursorcolumn colorcolumn=
@@ -34,7 +34,7 @@ function! s:init_buffer()
   call s:hide_cursor()
 endfunction
 
-function! s:define_keymappings()
+function! s:define_keymappings() abort
   noremap <buffer> <silent> <Plug>(threes-move-left)
   \       :<C-u>call b:threes.next(-1, 0).render()<CR>
   noremap <buffer> <silent> <Plug>(threes-move-down)
@@ -62,7 +62,7 @@ function! s:define_keymappings()
   map <buffer> t <Plug>(threes-tweet)
 endfunction
 
-function! s:current_cursor()
+function! s:current_cursor() abort
   if !has('gui_running')
     return 'let &t_ve = ' . string(&t_ve)
   endif
@@ -76,7 +76,7 @@ function! s:current_cursor()
   \      substitute(matchstr(cursor, 'xxx\zs.*'), "\n", ' ', 'g')
 endfunction
 
-function! s:hide_cursor()
+function! s:hide_cursor() abort
   if has('gui_running')
     highlight Cursor ctermfg=NONE ctermbg=NONE guifg=NONE guibg=NONE
   else
@@ -84,7 +84,7 @@ function! s:hide_cursor()
   endif
 endfunction
 
-function! s:config_from_options()
+function! s:config_from_options() abort
   let config = a:0 ? copy(a:1) : {}
   if g:threes#start_with_higher_tile
     let highest_tile = threes#record#stats().highest_tile

@@ -1,7 +1,7 @@
 let s:suite = themis#suite('Canvas')
 call themis#helper('command').with(themis#helper('assert'))
 
-function! s:suite.field()
+function! s:suite.field() abort
   let canvas = threes#canvas#new(10, 20)
   Assert Equals(canvas.width(), 10)
   Assert Equals(len(canvas._field[0]), 10)
@@ -9,7 +9,7 @@ function! s:suite.field()
   Assert Equals(len(canvas._field), 20)
 endfunction
 
-function! s:suite.draw()
+function! s:suite.draw() abort
   let canvas = threes#canvas#new([
   \   '+------+',
   \   '|      |',
@@ -44,7 +44,7 @@ function! s:suite.draw()
   Assert Equals(canvas._field, expect2)
 endfunction
 
-function! s:suite.draw_center()
+function! s:suite.draw_center() abort
   let canvas = threes#canvas#new([
   \   '+------+',
   \   '|      |',
@@ -68,7 +68,7 @@ function! s:suite.draw_center()
   Assert Equals(canvas._field, expect)
 endfunction
 
-function! s:suite.extend()
+function! s:suite.extend() abort
   let canvas = threes#canvas#new()
 
   call canvas.extend(5, 5)
@@ -80,7 +80,7 @@ function! s:suite.extend()
   Assert Equals(canvas.height(), 10)
 endfunction
 
-function! s:suite.resize()
+function! s:suite.resize() abort
   let canvas = threes#canvas#new(10, 10)
 
   call canvas.resize(5, 5)

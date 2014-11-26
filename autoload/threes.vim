@@ -36,13 +36,13 @@ let s:step_patterns = [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
 let s:Threes = {}
 
-function! s:Threes.init(config)
+function! s:Threes.init(config) abort
   let self._config = deepcopy(a:config)
   call self.update_config()
   let self._renderer = threes#renderer#new(self)
 endfunction
 
-function! s:Threes.update_config()
+function! s:Threes.update_config() abort
   let self._base_number = s:sum(self._config.origin_numbers)
   let origin_num = (self.width() + self.height()) / 2
   let self._origin_deck =
@@ -50,7 +50,7 @@ function! s:Threes.update_config()
   \        repeat([self.base_number()], origin_num)
 endfunction
 
-function! s:Threes.reset()
+function! s:Threes.reset() abort
   let self._state = {}
   let self._state.tiles =
   \        map(range(self.width()), 'repeat([0], self.height())')
@@ -61,39 +61,39 @@ function! s:Threes.reset()
   let self._random = s:Random.new('', self._state.seed)
 endfunction
 
-function! s:Threes.width()
+function! s:Threes.width() abort
   return self._config.width
 endfunction
 
-function! s:Threes.height()
+function! s:Threes.height() abort
   return self._config.height
 endfunction
 
-function! s:Threes.base_number()
+function! s:Threes.base_number() abort
   return self._base_number
 endfunction
 
-function! s:Threes.get_tile(x, y)
+function! s:Threes.get_tile(x, y) abort
   return self._state.tiles[a:y][a:x]
 endfunction
 
-function! s:Threes.set_tile(x, y, tile)
+function! s:Threes.set_tile(x, y, tile) abort
   let self._state.tiles[a:y][a:x] = a:tile
 endfunction
 
-function! s:Threes.tiles()
+function! s:Threes.tiles() abort
   return s:List.flatten(self._state.tiles)
 endfunction
 
-function! s:Threes.seed()
+function! s:Threes.seed() abort
   return self._state.seed
 endfunction
 
-function! s:Threes.steps()
+function! s:Threes.steps() abort
   return self._state.steps
 endfunction
 
-function! s:Threes.tile_list(...)
+function! s:Threes.tile_list(...) abort
   let list = []
   let exclude_list = a:0 ? a:1 : []
 
@@ -114,27 +114,27 @@ function! s:Threes.tile_list(...)
   return list
 endfunction
 
-function! s:Threes.steps()
+function! s:Threes.steps() abort
   return self._state.steps
 endfunction
 
-function! s:Threes.next_tile()
+function! s:Threes.next_tile() abort
   return self._state.next_tile
 endfunction
 
-function! s:Threes.next_tile_candidates()
+function! s:Threes.next_tile_candidates() abort
   return self._state.next_tile_candidates
 endfunction
 
-function! s:Threes.highest_tile()
+function! s:Threes.highest_tile() abort
   return max(self.tiles())
 endfunction
 
-function! s:Threes.is_origin(tile)
+function! s:Threes.is_origin(tile) abort
   return s:List.has(self._config.origin_numbers, a:tile)
 endfunction
 
-function! s:Threes.append_tile(from, to)
+function! s:Threes.append_tile(from, to) abort
   if a:to == 0 ||
   \   (a:to == a:from ? self.base_number() <= a:to
   \                   : self.is_origin(a:to) && self.is_origin(a:from))
@@ -143,7 +143,7 @@ function! s:Threes.append_tile(from, to)
   return 0
 endfunction
 
-function! s:Threes.is_gameover()
+function! s:Threes.is_gameover() abort
   if s:List.has(self.tiles(), 0)
     return 0
   endif
@@ -155,7 +155,7 @@ function! s:Threes.is_gameover()
   return 1
 endfunction
 
-function! s:Threes.new_game()
+function! s:Threes.new_game() abort
   call self.reset()
 
   let tile_count = self.width() * self.height()
@@ -182,12 +182,12 @@ function! s:Threes.new_game()
   call self.update_next_tile()
 endfunction
 
-function! s:Threes.start()
+function! s:Threes.start() abort
   call self.new_game()
   call self.render()
 endfunction
 
-function! s:Threes.move(dx, dy)
+function! s:Threes.move(dx, dy) abort
   let tiles = deepcopy(self._state.tiles)
   let moved = []
   let xrange = range(self.width())
@@ -221,7 +221,7 @@ function! s:Threes.move(dx, dy)
   \ }
 endfunction
 
-function! s:Threes.next_tile_positions(dx, dy, moved)
+function! s:Threes.next_tile_positions(dx, dy, moved) abort
   let moved = copy(a:moved)
   if a:dx
     let x = a:dx < 0 ? self.width() - 1 : 0
@@ -236,7 +236,7 @@ function! s:Threes.next_tile_positions(dx, dy, moved)
   return []
 endfunction
 
-function! s:Threes.next(dx, dy)
+function! s:Threes.next(dx, dy) abort
   let result = self.move(a:dx, a:dy)
   if !empty(result.moved)
     let positions = self.next_tile_positions(a:dx, a:dy, result.moved)
@@ -258,13 +258,13 @@ function! s:Threes.next(dx, dy)
   return self
 endfunction
 
-function! s:Threes.update_next_tile()
+function! s:Threes.update_next_tile() abort
   let self._state.next_tile = self.random_tile()
   let self._state.next_tile_candidates =
   \     self.make_next_tile_candidates(self._state.next_tile)
 endfunction
 
-function! s:Threes.make_next_tile_candidates(next_tile)
+function! s:Threes.make_next_tile_candidates(next_tile) abort
   let tile_count = self._config.large_next_tile_count
   if self._config.hide_large_next_tile ||
   \   tile_count <= 1 ||
@@ -284,7 +284,7 @@ function! s:Threes.make_next_tile_candidates(next_tile)
   return large_nums[begin : begin + tile_count - 1]
 endfunction
 
-function! s:Threes.animate_slide(dx, dy, moved, next_tile)
+function! s:Threes.animate_slide(dx, dy, moved, next_tile) abort
   let renderer = self._renderer
   let width = renderer._tile_width + strwidth(renderer._chars.vertical)
   let height = renderer._tile_height + 1
@@ -302,7 +302,7 @@ function! s:Threes.animate_slide(dx, dy, moved, next_tile)
   call renderer.reset_tile_animate()
 endfunction
 
-function! s:Threes.random_tile(...)
+function! s:Threes.random_tile(...) abort
   let not_use_large_number = a:0 ? a:1 : 0
 
   if !not_use_large_number
@@ -321,18 +321,18 @@ function! s:Threes.random_tile(...)
   return remove(self._state.deck, 0)
 endfunction
 
-function! s:Threes.is_large_number(number)
+function! s:Threes.is_large_number(number) abort
   return self.base_number() < a:number
 endfunction
 
-function! s:Threes.large_numbers()
+function! s:Threes.large_numbers() abort
   let max_tile_radix = self.exp(self.highest_tile())
   let exp = max([max_tile_radix - self._config.large_num_limit, 0])
   let base = self.base_number()
   return map(range(1, exp), 'base * float2nr(pow(2, v:val))')
 endfunction
 
-function! s:Threes.render()
+function! s:Threes.render() abort
   let content = self._renderer.render_game()
 
   setlocal modifiable noreadonly
@@ -344,23 +344,23 @@ function! s:Threes.render()
   redraw
 endfunction
 
-function! s:Threes.exp(number)
+function! s:Threes.exp(number) abort
   let base2 = a:number / self.base_number()
   return base2 == 0 ? -1 : float2nr(log(base2) / log(2))
 endfunction
 
-function! s:Threes.score(number)
+function! s:Threes.score(number) abort
   if a:number < self.base_number()
     return 0
   endif
   return float2nr(pow(self.base_number(), self.exp(a:number) + 1))
 endfunction
 
-function! s:Threes.total_score()
+function! s:Threes.total_score() abort
   return s:sum(map(self.tiles(), 'self.score(v:val)'))
 endfunction
 
-function! s:Threes.restart(...)
+function! s:Threes.restart(...) abort
   if self.is_gameover() || s:confirm_quit_game('Restart')
     if a:0
       call extend(self._config, a:1)
@@ -370,18 +370,18 @@ function! s:Threes.restart(...)
   endif
 endfunction
 
-function! s:Threes.quit()
+function! s:Threes.quit() abort
   close
 endfunction
 
-function! s:Threes.tweet()
+function! s:Threes.tweet() abort
   if self.is_gameover()
     call s:tweet(self.total_score())
   endif
 endfunction
 
 
-function! threes#new(...)
+function! threes#new(...) abort
   let threes = deepcopy(s:Threes)
   let config = s:default_config
   if a:0
@@ -391,15 +391,15 @@ function! threes#new(...)
   return threes
 endfunction
 
-function! threes#start()
+function! threes#start() abort
   tabnew `='threes://play'`  " TODO: opener
 endfunction
 
-function! threes#show_record()
+function! threes#show_record() abort
   tabnew `='threes://record'`  " TODO: opener
 endfunction
 
-function! s:confirm_quit_game(action_mes)
+function! s:confirm_quit_game(action_mes) abort
   let msg = join([
   \   'Careful!',
   \   'You will lose all progress on your current board.',
@@ -409,7 +409,7 @@ function! s:confirm_quit_game(action_mes)
   return answer == 1
 endfunction
 
-function! s:tweet(score)
+function! s:tweet(score) abort
   let score_str = substitute(a:score, '\v\d\zs\ze(\d{3})+$', ',', 'g')
   let tweet_text = printf(s:tweet_template, score_str)
   if get(g:, 'loaded_tweetvim', 0)
@@ -421,7 +421,7 @@ function! s:tweet(score)
   endif
 endfunction
 
-function! s:save_record()
+function! s:save_record() abort
   if empty(g:threes#data_directory)
     return
   endif
@@ -434,7 +434,7 @@ endfunction
 call threes#record#load(g:threes#data_directory . '/records.dat')
 
 " --- Utilities
-function! s:sum(list)
+function! s:sum(list) abort
   return eval(join(a:list, '+'))
 endfunction
 

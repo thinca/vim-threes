@@ -1,19 +1,19 @@
 let s:suite = themis#suite('Threes object')
 call themis#helper('command').with(themis#helper('assert'))
 
-function! s:suite.before_each()
+function! s:suite.before_each() abort
   let self.t = threes#new()
   call self.t.new_game()
 endfunction
 
-function! s:suite.tiles()
+function! s:suite.tiles() abort
   let t = self.t
   Assert Equals(t.width(), 4)
   Assert Equals(t.height(), 4)
   Assert NotSame(t._state.tiles[0], t._state.tiles[1])
 endfunction
 
-function! s:suite.tile_list()
+function! s:suite.tile_list() abort
   let t = self.t
   let t._state.next = 0
   let t._state.tiles = [
@@ -48,7 +48,7 @@ function! s:suite.tile_list()
   Assert Equals(t.tile_list(exclude_list), expect)
 endfunction
 
-function! s:suite.append_tile()
+function! s:suite.append_tile() abort
   let t = self.t
   Assert Equals(t.append_tile(1,  2), 3)
   Assert Equals(t.append_tile(2,  2), 0)
@@ -59,7 +59,7 @@ function! s:suite.append_tile()
   Assert Equals(t.append_tile(0,  1), 0)
 endfunction
 
-function! s:suite.move()
+function! s:suite.move() abort
   let t = self.t
   let t._state.next = 0
   let t._state.tiles = [
@@ -99,7 +99,7 @@ function! s:suite.move()
   Assert Equals(t.move(1, 0).tiles, expect_right)
 endfunction
 
-function! s:suite.is_gameover()
+function! s:suite.is_gameover() abort
   let t = self.t
   let t._state.next_tile = 2
   let t._state.deck = [2, 2]
@@ -116,7 +116,7 @@ function! s:suite.is_gameover()
   Assert True(t.is_gameover())
 endfunction
 
-function! s:suite.exp()
+function! s:suite.exp() abort
   let t = self.t
   Assert Equals(t.exp(1), -1)
   Assert Equals(t.exp(2), -1)
@@ -134,7 +134,7 @@ function! s:suite.exp()
   Assert Equals(t.exp(6144), 11)
 endfunction
 
-function! s:suite.score()
+function! s:suite.score() abort
   let t = self.t
   Assert Equals(t.score(1), 0)
   Assert Equals(t.score(2), 0)
@@ -152,7 +152,7 @@ function! s:suite.score()
   Assert Equals(t.score(6144), 531441)
 endfunction
 
-function! s:suite.total_score()
+function! s:suite.total_score() abort
   let t = self.t
   let t._state.tiles = [
   \   [3, 1, 1, 1],
@@ -163,7 +163,7 @@ function! s:suite.total_score()
   Assert Equals(t.total_score(), 12)
 endfunction
 
-function! s:suite.steps()
+function! s:suite.steps() abort
   let t = self.t
   let t._state.next = 0
   " Movable to right

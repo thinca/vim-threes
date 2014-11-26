@@ -6,7 +6,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! threes#view#read(path)
+function! threes#view#read(path) abort
   let page = matchstr(a:path, '^threes://\zs.*')
   call threes#view#{page}#open()
 endfunction

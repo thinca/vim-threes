@@ -8,13 +8,13 @@ set cpo&vim
 
 let s:Renderer = {}
 
-function! threes#renderer#new(...)
+function! threes#renderer#new(...) abort
   let renderer = deepcopy(s:Renderer)
   call call(renderer.init, a:000, renderer)
   return renderer
 endfunction
 
-function! s:Renderer.init(game)
+function! s:Renderer.init(game) abort
   let self._game = a:game
   let self._tile_width = 6
   let self._tile_height = 3
@@ -33,7 +33,7 @@ function! s:Renderer.init(game)
   let self._frame = self.make_frame(a:game.width(), a:game.height())
 endfunction
 
-function! s:Renderer.render_game()
+function! s:Renderer.render_game() abort
   let canvas = self._canvas
   let game = self._game
   call canvas.resize(-1, 0)
@@ -79,7 +79,7 @@ function! s:Renderer.render_game()
   return map(canvas.to_lines(), 'substitute(v:val, "\\s\\+$", "", "")')
 endfunction
 
-function! s:Renderer.render_next(canvas)
+function! s:Renderer.render_next(canvas) abort
   let tile_width = self._tile_width
 
   let tiles = self._game.next_tile_candidates()
@@ -97,7 +97,7 @@ function! s:Renderer.render_next(canvas)
   call a:canvas.draw_center(frame_canvas, 1)
 endfunction
 
-function! s:Renderer.render_board(canvas)
+function! s:Renderer.render_board(canvas) abort
   let game = self._game
   call a:canvas.draw(self._frame, 0, 0)
   let highest = game.highest_tile()
@@ -111,7 +111,7 @@ function! s:Renderer.render_board(canvas)
   \                      self._tile_dx, self._tile_dy)
 endfunction
 
-function! s:Renderer.render_tiles(canvas, tiles, highest, dx, dy)
+function! s:Renderer.render_tiles(canvas, tiles, highest, dx, dy) abort
   for [x, y, tile] in a:tiles
     let cx = x * (self._tile_width + 1) + 1 + a:dx
     let cy = y * (self._tile_height + 1) + 1 + a:dy
@@ -120,22 +120,22 @@ function! s:Renderer.render_tiles(canvas, tiles, highest, dx, dy)
   endfor
 endfunction
 
-function! s:Renderer.set_tile_animate(dx, dy)
+function! s:Renderer.set_tile_animate(dx, dy) abort
   let self._tile_dx = a:dx
   let self._tile_dy = a:dy
 endfunction
 
-function! s:Renderer.set_moved_tile(moved)
+function! s:Renderer.set_moved_tile(moved) abort
   let self._moved_tile = a:moved
 endfunction
 
-function! s:Renderer.reset_tile_animate()
+function! s:Renderer.reset_tile_animate() abort
   let self._moved_tile = []
   let self._tile_dx = 0
   let self._tile_dy = 0
 endfunction
 
-function! s:Renderer.make_frame(x, y, ...)
+function! s:Renderer.make_frame(x, y, ...) abort
   let tile_width = self._tile_width
   let tile_height = get(a:000, 0, self._tile_height)
   let c = self._chars
@@ -149,12 +149,12 @@ function! s:Renderer.make_frame(x, y, ...)
   return board
 endfunction
 
-function! s:Renderer.make_horizontal(width)
+function! s:Renderer.make_horizontal(width) abort
   let c = self._chars
   return c.cross . repeat(c.horizontal, a:width) . c.cross
 endfunction
 
-function! s:Renderer.get_tile(tile, is_highest)
+function! s:Renderer.get_tile(tile, is_highest) abort
   let images = self._tile_images[!!a:is_highest]
   if !has_key(images, a:tile)
     let images[a:tile] = self.make_tile(a:tile, a:is_highest)
@@ -162,7 +162,7 @@ function! s:Renderer.get_tile(tile, is_highest)
   return images[a:tile]
 endfunction
 
-function! s:Renderer.make_tile(tile, is_highest)
+function! s:Renderer.make_tile(tile, is_highest) abort
   let tile_width = self._tile_width
   let tile_height = self._tile_height
 
@@ -180,19 +180,19 @@ function! s:Renderer.make_tile(tile, is_highest)
   return line_tiles
 endfunction
 
-function! s:Renderer.next_tile_str(next_tile)
+function! s:Renderer.next_tile_str(next_tile) abort
   if a:next_tile <= self._game.base_number()
     return ''
   endif
   return self._game._config.hide_large_next_tile ? '+' : a:next_tile
 endfunction
 
-function! s:Renderer.tile_color_char(tile)
+function! s:Renderer.tile_color_char(tile) abort
   let colors = ['_', ' ', '.', ',']
   return colors[index([0] + self._game._config.origin_numbers, a:tile) + 1]
 endfunction
 
-function! s:centerize(str, width, ...)
+function! s:centerize(str, width, ...) abort
   let char = a:0 ? a:1 : ' '
   let w = strwidth(a:str)
   let padding = a:width - w

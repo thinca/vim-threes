@@ -14,11 +14,11 @@ let s:save_data = {
 \   'records': [],
 \ }
 
-function! threes#record#clear()
+function! threes#record#clear() abort
   let s:save_data.records = []
 endfunction
 
-function! threes#record#load(file)
+function! threes#record#load(file) abort
   if filereadable(a:file)
     let lines = readfile(a:file)
     let s:save_data = s:load_savedata(lines)
@@ -27,27 +27,27 @@ function! threes#record#load(file)
   endif
 endfunction
 
-function! threes#record#save(file)
+function! threes#record#save(file) abort
   let lines = [s:DATA_VERSION, string(threes#record#stats())] +
   \           map(copy(s:save_data.records), 'string(v:val)')
   call writefile(lines, a:file)
 endfunction
 
-function! threes#record#list()
+function! threes#record#list() abort
   return copy(s:save_data.records)
 endfunction
 
-function! threes#record#best(n)
+function! threes#record#best(n) abort
   let best = s:List.sort_by(copy(s:save_data.records), '-v:val.score')
   return len(best) <= a:n ? best : best[: a:n - 1]
 endfunction
 
-function! threes#record#add(threes)
+function! threes#record#add(threes) abort
   call add(s:save_data.records, threes#record#make(a:threes))
   unlet! s:stats
 endfunction
 
-function! threes#record#make(threes)
+function! threes#record#make(threes) abort
   return {
   \   'config': a:threes._config,
   \   'score': a:threes.total_score(),
@@ -60,14 +60,14 @@ function! threes#record#make(threes)
   \ }
 endfunction
 
-function! threes#record#stats()
+function! threes#record#stats() abort
   if !exists('s:stats')
     let s:stats = s:make_stats(s:save_data.records)
   endif
   return s:stats
 endfunction
 
-function! s:make_stats(list)
+function! s:make_stats(list) abort
   let score_list = map(copy(s:save_data.records), 'v:val.score')
   return {
   \   'top': max(score_list),
@@ -77,11 +77,11 @@ function! s:make_stats(list)
   \ }
 endfunction
 
-function! s:sum(list)
+function! s:sum(list) abort
   return eval(join(a:list, '+'))
 endfunction
 
-function! s:load_savedata(lines)
+function! s:load_savedata(lines) abort
   let ver = remove(a:lines, 0)
   let savedata = s:load_version_{ver}(a:lines)
   while ver != s:DATA_VERSION
@@ -91,7 +91,7 @@ function! s:load_savedata(lines)
   return savedata
 endfunction
 
-function! s:load_version_1(lines)
+function! s:load_version_1(lines) abort
   call remove(a:lines, 0)  " stats
   return {
   \   'records': map(a:lines, 'eval(v:val)'),
@@ -99,7 +99,7 @@ function! s:load_version_1(lines)
 endfunction
 let s:load_version_2 = function('s:load_version_1')
 
-function! s:migrate_version_1_to_2(savedata)
+function! s:migrate_version_1_to_2(savedata) abort
   let config = {
   \   'width': 4,
   \   'height': 4,

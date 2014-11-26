@@ -9,20 +9,20 @@ set cpo&vim
 " A simple canvas system.  This treats ascii character only.
 let s:Canvas = {}
 
-function! s:to_canvas(...)
+function! s:to_canvas(...) abort
   if type(a:1) == type({}) && has_key(a:1, '_field')
     return a:1
   endif
   return call('threes#canvas#new', a:000)
 endfunction
 
-function! threes#canvas#new(...)
+function! threes#canvas#new(...) abort
   let canvas = deepcopy(s:Canvas)
   call call(canvas.init, a:000, canvas)
   return canvas
 endfunction
 
-function! s:Canvas.init(...)
+function! s:Canvas.init(...) abort
   let [self._width, self._height] = [0, 0]
   if a:0 == 0
     let lines = []
@@ -48,36 +48,36 @@ function! s:Canvas.init(...)
   call self.reset_origin()
 endfunction
 
-function! s:Canvas.clear()
+function! s:Canvas.clear() abort
   return map(self._field, 'substitute(v:val, ".", " ", "g")')
 endfunction
 
-function! s:Canvas.width()
+function! s:Canvas.width() abort
   return self._width
 endfunction
 
-function! s:Canvas.height()
+function! s:Canvas.height() abort
   return self._height
 endfunction
 
-function! s:Canvas.reset_origin()
+function! s:Canvas.reset_origin() abort
   call self.set_origin(0, 0)
 endfunction
 
-function! s:Canvas.origin_x()
+function! s:Canvas.origin_x() abort
   return self._origin_x
 endfunction
 
-function! s:Canvas.origin_y()
+function! s:Canvas.origin_y() abort
   return self._origin_y
 endfunction
 
-function! s:Canvas.set_origin(x, y)
+function! s:Canvas.set_origin(x, y) abort
   let self._origin_x = a:x
   let self._origin_y = a:y
 endfunction
 
-function! s:Canvas.draw(image, x, y)
+function! s:Canvas.draw(image, x, y) abort
   let target = s:to_canvas(a:image)
   let [x, y] = [a:x + self._origin_x, a:y + self._origin_y]
   call self.extend(x + target.width(), y + target.height())
@@ -90,12 +90,12 @@ function! s:Canvas.draw(image, x, y)
   endfor
 endfunction
 
-function! s:Canvas.draw_center(image, y)
+function! s:Canvas.draw_center(image, y) abort
   let target = s:to_canvas(a:image)
   call self.draw(a:image, (self.width() - target.width()) / 2, a:y)
 endfunction
 
-function! s:Canvas.extend(width, height)
+function! s:Canvas.extend(width, height) abort
   if self.width() < a:width
     call map(self._field, 'v:val . repeat(" ", a:width - len(v:val))')
     let self._width = a:width
@@ -107,7 +107,7 @@ function! s:Canvas.extend(width, height)
   endif
 endfunction
 
-function! s:Canvas.resize(width, height)
+function! s:Canvas.resize(width, height) abort
   call self.extend(a:width, a:height)
   if 0 <= a:height && a:height < self.height()
     let self._field = s:head(self._field, a:height)
@@ -120,11 +120,11 @@ function! s:Canvas.resize(width, height)
   endif
 endfunction
 
-function! s:Canvas.to_lines()
+function! s:Canvas.to_lines() abort
   return copy(self._field)
 endfunction
 
-function! s:head(x, size)
+function! s:head(x, size) abort
   return a:size != 0           ? a:x[: a:size - 1] :
   \      type(a:x) == type('') ? '' : []
 endfunction
