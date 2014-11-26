@@ -13,7 +13,7 @@ function! threes#view#play#open()
     let b:threes = s:current_threes
     call b:threes.render()
   else
-    let b:threes = threes#new(s:setting_from_options())
+    let b:threes = threes#new(s:config_from_options())
     let s:current_threes = b:threes
     call b:threes.start()
   endif
@@ -44,7 +44,7 @@ function! s:define_keymappings()
   noremap <buffer> <silent> <Plug>(threes-move-right)
   \       :<C-u>call b:threes.next(1, 0).render()<CR>
   noremap <buffer> <silent> <Plug>(threes-restart)
-  \       :<C-u>call b:threes.restart(<SID>setting_from_options())<CR>
+  \       :<C-u>call b:threes.restart(<SID>config_from_options())<CR>
   noremap <buffer> <silent> <Plug>(threes-quit)
   \       :<C-u>call b:threes.quit()<CR>
   noremap <buffer> <silent> <Plug>(threes-redraw)
@@ -84,17 +84,17 @@ function! s:hide_cursor()
   endif
 endfunction
 
-function! s:setting_from_options()
-  let setting = a:0 ? copy(a:1) : {}
+function! s:config_from_options()
+  let config = a:0 ? copy(a:1) : {}
   if g:threes#start_with_higher_tile
     let highest_tile = threes#record#stats().highest_tile
     let higher_tile = highest_tile / 8
     if 3 < higher_tile  " XXX: 3 is base number
-      let setting.init_higher_tile = higher_tile
+      let config.init_higher_tile = higher_tile
     endif
   endif
-  return setting
-  return threes#new(setting)
+  return config
+  return threes#new(config)
 endfunction
 
 let &cpo = s:save_cpo

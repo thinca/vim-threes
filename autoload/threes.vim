@@ -20,7 +20,7 @@ endif
 
 let s:tweet_template = 'I just scored %s in threes.vim! https://github.com/thinca/vim-threes #threesvim'
 
-let s:default_setting = {
+let s:default_config = {
 \   'width': 4,
 \   'height': 4,
 \   'origin_numbers': [1, 2],
@@ -36,17 +36,17 @@ let s:step_patterns = [[-1, 0], [1, 0], [0, -1], [0, 1]]
 
 let s:Threes = {}
 
-function! s:Threes.init(setting)
-  let self._setting = deepcopy(a:setting)
-  call self.update_setting()
+function! s:Threes.init(config)
+  let self._config = deepcopy(a:config)
+  call self.update_config()
   let self._renderer = threes#renderer#new(self)
 endfunction
 
-function! s:Threes.update_setting()
-  let self._base_number = s:sum(self._setting.origin_numbers)
+function! s:Threes.update_config()
+  let self._base_number = s:sum(self._config.origin_numbers)
   let origin_num = (self.width() + self.height()) / 2
   let self._origin_deck =
-  \        repeat(self._setting.origin_numbers, origin_num) +
+  \        repeat(self._config.origin_numbers, origin_num) +
   \        repeat([self.base_number()], origin_num)
 endfunction
 
@@ -57,16 +57,16 @@ function! s:Threes.reset()
   let self._state.deck = []
   let self._state.steps = []
 
-  let self._state.seed = get(self._setting, 'seed', s:Random.next(1))
+  let self._state.seed = get(self._config, 'seed', s:Random.next(1))
   let self._random = s:Random.new('', self._state.seed)
 endfunction
 
 function! s:Threes.width()
-  return self._setting.width
+  return self._config.width
 endfunction
 
 function! s:Threes.height()
-  return self._setting.height
+  return self._config.height
 endfunction
 
 function! s:Threes.base_number()
@@ -131,7 +131,7 @@ function! s:Threes.highest_tile()
 endfunction
 
 function! s:Threes.is_origin(tile)
-  return s:List.has(self._setting.origin_numbers, a:tile)
+  return s:List.has(self._config.origin_numbers, a:tile)
 endfunction
 
 function! s:Threes.append_tile(from, to)
@@ -160,13 +160,13 @@ function! s:Threes.new_game()
 
   let tile_count = self.width() * self.height()
   let tiles = range(tile_count)
-  let init_count = self._setting.init_count
+  let init_count = self._config.init_count
 
-  if self._setting.init_higher_tile
+  if self._config.init_higher_tile
     " put the higher tile on corner
     let x = self._random.sample([0, self.width() - 1])
     let y = self._random.sample([0, self.height() - 1])
-    call self.set_tile(x, y, self._setting.init_higher_tile)
+    call self.set_tile(x, y, self._config.init_higher_tile)
     let pos = x + y * self.height()
     call filter(tiles, 'v:val != pos')
     let init_count -= 1
@@ -265,8 +265,8 @@ function! s:Threes.update_next_tile()
 endfunction
 
 function! s:Threes.make_next_tile_candidates(next_tile)
-  let tile_count = self._setting.large_next_tile_count
-  if self._setting.hide_large_next_tile ||
+  let tile_count = self._config.large_next_tile_count
+  if self._config.hide_large_next_tile ||
   \   tile_count <= 1 ||
   \   !self.is_large_number(a:next_tile)
     return [a:next_tile]
@@ -309,7 +309,7 @@ function! s:Threes.random_tile(...)
     " large number
     let large_nums = self.large_numbers()
     if len(large_nums) != 0 &&
-    \   self._random.range(self._setting.large_num_odds) == 0
+    \   self._random.range(self._config.large_num_odds) == 0
       return self._random.sample(large_nums)
     endif
   endif
@@ -327,7 +327,7 @@ endfunction
 
 function! s:Threes.large_numbers()
   let max_tile_radix = self.exp(self.highest_tile())
-  let exp = max([max_tile_radix - self._setting.large_num_limit, 0])
+  let exp = max([max_tile_radix - self._config.large_num_limit, 0])
   let base = self.base_number()
   return map(range(1, exp), 'base * float2nr(pow(2, v:val))')
 endfunction
@@ -363,8 +363,8 @@ endfunction
 function! s:Threes.restart(...)
   if self.is_gameover() || s:confirm_quit_game('Restart')
     if a:0
-      call extend(self._setting, a:1)
-      call self.update_setting()
+      call extend(self._config, a:1)
+      call self.update_config()
     endif
     call self.start()
   endif
@@ -383,11 +383,11 @@ endfunction
 
 function! threes#new(...)
   let threes = deepcopy(s:Threes)
-  let setting = s:default_setting
+  let config = s:default_config
   if a:0
-    let setting = extend(copy(setting), a:1)
+    let config = extend(copy(config), a:1)
   endif
-  call threes.init(setting)
+  call threes.init(config)
   return threes
 endfunction
 

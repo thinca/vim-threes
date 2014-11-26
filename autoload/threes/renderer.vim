@@ -184,12 +184,12 @@ function! s:Renderer.next_tile_str(next_tile)
   if a:next_tile <= self._game.base_number()
     return ''
   endif
-  return self._game._setting.hide_large_next_tile ? '+' : a:next_tile
+  return self._game._config.hide_large_next_tile ? '+' : a:next_tile
 endfunction
 
 function! s:Renderer.tile_color_char(tile)
   let colors = ['_', ' ', '.', ',']
-  return colors[index([0] + self._game._setting.origin_numbers, a:tile) + 1]
+  return colors[index([0] + self._game._config.origin_numbers, a:tile) + 1]
 endfunction
 
 function! s:centerize(str, width, ...)
