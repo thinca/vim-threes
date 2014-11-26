@@ -18,7 +18,7 @@ if !exists('g:threes#start_with_higher_tile')
   let g:threes#start_with_higher_tile = 0
 endif
 
-let s:tweet_template = 'I just scored %s in threes.vim! https://github.com/thinca/vim-threes #threesvim'
+let s:tweet_template = 'I just scored %s (the highest number was %s) in threes.vim! https://github.com/thinca/vim-threes #threesvim'
 
 let s:default_config = {
 \   'width': 4,
@@ -376,7 +376,7 @@ endfunction
 
 function! s:Threes.tweet() abort
   if self.is_gameover()
-    call s:tweet(self.total_score())
+    call s:tweet(self.total_score(), self.highest_tile())
   endif
 endfunction
 
@@ -409,9 +409,9 @@ function! s:confirm_quit_game(action_mes) abort
   return answer == 1
 endfunction
 
-function! s:tweet(score) abort
+function! s:tweet(score, highest_num) abort
   let score_str = substitute(a:score, '\v\d\zs\ze(\d{3})+$', ',', 'g')
-  let tweet_text = printf(s:tweet_template, score_str)
+  let tweet_text = printf(s:tweet_template, score_str, a:highest_num)
   if get(g:, 'loaded_tweetvim', 0)
     call tweetvim#say#open(tweet_text)
     stopinsert
