@@ -1,6 +1,6 @@
 *threes.txt*	Play Threes! in Vim!
 
-Version: 1.5
+Version: 1.6
 Author : thinca <thinca+vim@gmail.com>
 License: zlib License
 
@@ -137,6 +137,12 @@ TODO						*threes-todo*
 
 ==============================================================================
 CHANGELOG					*threes-changelog*
+
+1.6	2014-11-26
+	- Modifications to the "+" preview.
+	  - Show 3 tiles of next large number.
+	- Start new games with higher tiles.
+	  - |g:threes#start_with_higher_tile|.
 
 1.5	2014-08-10
 	- Score recording feature.
