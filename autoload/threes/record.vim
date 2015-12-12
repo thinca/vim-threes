@@ -78,7 +78,7 @@ function! s:make_stats(list) abort
 endfunction
 
 function! s:sum(list) abort
-  return eval(join(a:list, '+'))
+  return empty(a:list) ? 0 : eval(join(a:list, '+'))
 endfunction
 
 function! s:load_savedata(lines) abort
