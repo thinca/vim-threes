@@ -1,5 +1,5 @@
 " Play Threes! in Vim!
-" Version: 1.6
+" Version: 1.6.1
 " Author : thinca <thinca+vim@gmail.com>
 " License: zlib License
 
