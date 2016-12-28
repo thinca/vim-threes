@@ -6,7 +6,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let g:threes#vital = vital#of('threes')
+let g:threes#vital = vital#threes#new()
 let s:Random = g:threes#vital.import('Random')
 let s:List = g:threes#vital.import('Data.List')
 
